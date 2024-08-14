@@ -1,0 +1,11 @@
+{
+  "name": "octranspo-new-ways-to-bus",
+  "version": "1.0.0",
+  "description": "Requires `jq`. It’s good fun, I recommend it!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT"
+}
