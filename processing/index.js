@@ -1,20 +1,15 @@
 import fs from 'fs'
 import { parseFromString } from 'dom-parser'
 
-const schedules = fs.readdirSync('data/schedules/', {
-		withFileTypes: true,
-		recursive: true
-	})
-	.filter(item => ! item.isDirectory())
-	.map(item => ({
-		schedule_id: item.name,
-		service: item.path.split('/')[2],
-		path: item.path + item.name
-	}))
+const start = Date.now()
 
-const fileJson = JSON.parse(fs.readFileSync('data/schedules/weekday/1-Direction1.json'))
+console.log("processing began at", start)
 
-const dom = parseFromString(fileJson.Html)
+const parseDomFromFile = (path) => {
+	const fileJson = JSON.parse(fs.readFileSync(path))
+
+	return parseFromString(fileJson.Html)
+}
 
 const extractTimetableFromDom = (dom) => JSON.parse(
 	dom.getElementById('RouteTimetableContainer')
@@ -31,3 +26,31 @@ const extractTripIdsFromDom = (dom) => {
 	
 	return JSON.parse(hastinfoTag.innerHTML.match(tripIdsRegex)[1])
 }
+
+const schedules = fs.readdirSync('data/schedules/', {
+		withFileTypes: true,
+		recursive: true
+	})
+	.filter(item => ! item.isDirectory())
+	.filter(item => item.name.includes('.json'))
+	.map(item => ({
+		schedule_id: item.name,
+		service: item.path.split('/')[2],
+		path: item.path + '/' + item.name
+	}))
+
+const scheduleData = schedules.map(schedule => {
+	const scheduleDom = parseDomFromFile(schedule.path)
+
+	return {
+		...schedule,
+		timetable: extractTimetableFromDom(scheduleDom),
+		tripIds: extractTripIdsFromDom(scheduleDom)
+	}
+})
+
+fs.writeFileSync('data/out/schedules.json', JSON.stringify(scheduleData))
+
+const end = Date.now()
+
+console.log("processing began and ended at", [start, end])
