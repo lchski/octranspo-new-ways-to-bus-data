@@ -1,6 +1,17 @@
 import fs from 'fs'
 import { parseFromString } from 'dom-parser'
 
+const schedules = fs.readdirSync('data/schedules/', {
+		withFileTypes: true,
+		recursive: true
+	})
+	.filter(item => ! item.isDirectory())
+	.map(item => ({
+		schedule_id: item.name,
+		service: item.path.split('/')[2],
+		path: item.path + item.name
+	}))
+
 const fileJson = JSON.parse(fs.readFileSync('data/schedules/weekday/1-Direction1.json'))
 
 const dom = parseFromString(fileJson.Html)
@@ -20,6 +31,3 @@ const extractTripIdsFromDom = (dom) => {
 	
 	return JSON.parse(hastinfoTag.innerHTML.match(tripIdsRegex)[1])
 }
-
-console.log(extractTimetableFromDom(dom))
-console.log(extractTripIdsFromDom(dom).length)
