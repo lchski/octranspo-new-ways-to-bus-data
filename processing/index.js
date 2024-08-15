@@ -39,7 +39,6 @@ const schedules = fs.readdirSync('data/schedules/', {
 		path: item.path + '/' + item.name
 	}))
 
-let testSchedules = schedules.slice(0,4)
 
 const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((stop, i) => ({
 	stop_index: i,
@@ -51,7 +50,9 @@ const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((s
 	id: stop.Identifier
 }))
 
-const scheduleData = testSchedules.map(schedule => {
+// let testSchedules = schedules.slice(0,4)
+// const scheduleData = testSchedules.map(schedule => {
+const scheduleData = schedules.map(schedule => {
 	const scheduleDom = parseDomFromFile(schedule.path)
 	
 	const timetable = extractTimetableFromDom(scheduleDom)
