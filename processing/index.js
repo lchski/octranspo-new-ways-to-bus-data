@@ -60,10 +60,10 @@ const scheduleData = testSchedules.map(schedule => {
 	return {
 		...schedule,
 		stops: stops,
-		stop_times: Object.values(timetable.PassingTimeViewModelsByStops).map((stop_time, i) => ({
+		times_at_stop: Object.values(timetable.PassingTimeViewModelsByStops).map((times_at_stop, i) => ({
 			stop_index: i,
 			stop_code: stops[i].code,
-			time: stop_time.Time // TODO: figure out why this isn't working :)
+			times: times_at_stop.map(time_at_stop => time_at_stop.Time) // NB: this isn't stop_times in the GTFS sense, these are "all the times a bus stops at stop `i`"
 		})),
 		timetableTripCount: timetable.TripsCount,
 		tripIds: extractTripIdsFromDom(scheduleDom)
