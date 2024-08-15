@@ -57,16 +57,30 @@ const scheduleData = testSchedules.map(schedule => {
 	const timetable = extractTimetableFromDom(scheduleDom)
 	const stops = processStopsFromTimetable(timetable)
 
-	return {
+	const scheduleDataWithoutTrips = {
 		...schedule,
 		stops: stops,
-		times_at_stop: Object.values(timetable.PassingTimeViewModelsByStops).map((times_at_stop, i) => ({
-			stop_index: i,
-			stop_code: stops[i].code,
-			times: times_at_stop.map(time_at_stop => time_at_stop.Time) // NB: this isn't stop_times in the GTFS sense, these are "all the times a bus stops at stop `i`"
+		timesAtStops: Object.values(timetable.PassingTimeViewModelsByStops).map((timesAtStop, i) => ({
+			stopIndex: i,
+			stopCode: stops[i].code,
+			times: timesAtStop.map(timeAtStop => timeAtStop.Time) // NB: this isn't stop_times in the GTFS sense, these are "all the times a bus stops at stop `i`"
 		})),
 		timetableTripCount: timetable.TripsCount,
 		tripIds: extractTripIdsFromDom(scheduleDom)
+	}
+
+	return {
+		...schedule,
+		timetableTripCount: scheduleDataWithoutTrips.timetableTripCount,
+		stops: scheduleDataWithoutTrips.stops,
+		trips: scheduleDataWithoutTrips.tripIds.map((tripId, tripIndex) => ({
+			id: tripId,
+			stopTimes: scheduleDataWithoutTrips.timesAtStops.map((timesAtStop, stopIndex) => ({
+				stopCode: timesAtStop.stopCode,
+				arrivalTime: timesAtStop.times[tripIndex],
+				stopSequence: stopIndex
+			}))
+		}))
 	}
 })
 
