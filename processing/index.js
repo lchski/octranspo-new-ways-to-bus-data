@@ -39,12 +39,33 @@ const schedules = fs.readdirSync('data/schedules/', {
 		path: item.path + '/' + item.name
 	}))
 
-const scheduleData = schedules.map(schedule => {
+let testSchedules = schedules.slice(0,4)
+
+const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((stop, i) => ({
+	stop_index: i,
+	name: stop.DisplayText.split(' - ', 2)[0], // TODO / NB: this may cause a bug if " - " is found in a stop name when not separating the stop label and code
+	code: stop.DisplayText
+		.split(' - ', 2)[1]
+		.replaceAll('(', '')
+		.replaceAll(')', ''),
+	id: stop.Identifier
+}))
+
+const scheduleData = testSchedules.map(schedule => {
 	const scheduleDom = parseDomFromFile(schedule.path)
+	
+	const timetable = extractTimetableFromDom(scheduleDom)
+	const stops = processStopsFromTimetable(timetable)
 
 	return {
 		...schedule,
-		timetable: extractTimetableFromDom(scheduleDom),
+		stops: stops,
+		stop_times: Object.values(timetable.PassingTimeViewModelsByStops).map((stop_time, i) => ({
+			stop_index: i,
+			stop_code: stops[i].code,
+			time: stop_time.Time // TODO: figure out why this isn't working :)
+		})),
+		timetableTripCount: timetable.TripsCount,
 		tripIds: extractTripIdsFromDom(scheduleDom)
 	}
 })
