@@ -34,7 +34,7 @@ const schedules = fs.readdirSync('data/schedules/', {
 	.filter(item => ! item.isDirectory())
 	.filter(item => item.name.includes('.json'))
 	.map(item => ({
-		schedule_id: item.name,
+		schedule_id: item.name.replace('.json', ''),
 		service: item.path.split('/')[2],
 		path: item.path + '/' + item.name
 	}))
@@ -50,9 +50,9 @@ const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((s
 	id: stop.Identifier
 }))
 
-// let testSchedules = schedules.slice(0,4)
-// const scheduleData = testSchedules.map(schedule => {
-const scheduleData = schedules.map(schedule => {
+let testSchedules = schedules.slice(0,4)
+const scheduleData = testSchedules.map(schedule => {
+// const scheduleData = schedules.map(schedule => {
 	const scheduleDom = parseDomFromFile(schedule.path)
 	
 	const timetable = extractTimetableFromDom(scheduleDom)
@@ -86,6 +86,46 @@ const scheduleData = schedules.map(schedule => {
 })
 
 fs.writeFileSync('data/out/schedules.json', JSON.stringify(scheduleData))
+
+let gtfsStops = []
+let gtfsTrips = []
+let gtfsStopTimes = []
+
+scheduleData.forEach((schedule => {
+	gtfsStops.push(...schedule.stops.map(stop => ({
+		stop_id: stop.id,
+		stop_code: stop.code,
+		stop_name: stop.name
+	})))
+
+	gtfsTrips.push(...schedule.trips.map(trip => ({
+		route_id: schedule.schedule_id,
+		service_id: schedule.service,
+		trip_id: trip.id
+	})))
+
+	schedule.trips.forEach(trip => gtfsStopTimes.push(...trip.stopTimes.map(stopTime => ({
+		trip_id: trip.id,
+		arrival_time: stopTime.arrivalTime,
+		stop_code: stopTime.stopCode,
+		stop_sequence: stopTime.stopSequence
+	}))))
+}))
+
+// dedupe the stops
+gtfsStops = [...new Set(gtfsStops)]
+
+// filter out n/a stops and incorporate the stop_id
+gtfsStopTimes = gtfsStopTimes
+	.filter(stop_time => stop_time.arrival_time !== '0001-01-01T00:00:00Z')
+	.map(stop_time => ({
+		...stop_time,
+		stop_id: gtfsStops.find(stop => stop.stop_code === stop_time.stop_code).stop_id
+	}))
+
+fs.writeFileSync('data/out/gtfs-stops.json', JSON.stringify(gtfsStops))
+fs.writeFileSync('data/out/gtfs-trips.json', JSON.stringify(gtfsTrips))
+fs.writeFileSync('data/out/gtfs-stop-times.json', JSON.stringify(gtfsStopTimes))
 
 const end = Date.now()
 
