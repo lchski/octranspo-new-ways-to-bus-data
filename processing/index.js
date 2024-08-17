@@ -90,3 +90,4 @@ fs.writeFileSync('data/out/schedules.json', JSON.stringify(scheduleData))
 const end = Date.now()
 
 console.log("processing began and ended at", [start, end])
+console.log("processing took", [(end - start) / 1000], "seconds")
