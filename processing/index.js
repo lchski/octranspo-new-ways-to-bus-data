@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { parseFromString } from 'dom-parser'
+import { stringify } from 'csv-stringify/sync'
 
 const start = Date.now()
 
@@ -50,9 +51,9 @@ const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((s
 	id: stop.Identifier
 }))
 
-let testSchedules = schedules.slice(0,4)
-const scheduleData = testSchedules.map(schedule => {
-// const scheduleData = schedules.map(schedule => {
+// let testSchedules = schedules.slice(0,4)
+// const scheduleData = testSchedules.map(schedule => {
+const scheduleData = schedules.map(schedule => {
 	const scheduleDom = parseDomFromFile(schedule.path)
 	
 	const timetable = extractTimetableFromDom(scheduleDom)
@@ -126,6 +127,10 @@ gtfsStopTimes = gtfsStopTimes
 fs.writeFileSync('data/out/gtfs-stops.json', JSON.stringify(gtfsStops))
 fs.writeFileSync('data/out/gtfs-trips.json', JSON.stringify(gtfsTrips))
 fs.writeFileSync('data/out/gtfs-stop-times.json', JSON.stringify(gtfsStopTimes))
+
+fs.writeFileSync('data/out/gtfs-stops.csv', stringify(gtfsStops, { header: true }))
+fs.writeFileSync('data/out/gtfs-trips.csv', stringify(gtfsTrips, { header: true }))
+fs.writeFileSync('data/out/gtfs-stop-times.csv', stringify(gtfsStopTimes, { header: true }))
 
 const end = Date.now()
 
