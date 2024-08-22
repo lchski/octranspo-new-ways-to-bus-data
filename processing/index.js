@@ -112,8 +112,21 @@ scheduleData.forEach((schedule => {
 	}))))
 }))
 
+// via: https://stackoverflow.com/a/76772679
+const dedupe_object_array = (source) => {
+	if (!Array.isArray(source)) {
+	   return [];
+	}
+	return [...new Set(source.map(o => {
+	  const sortedObjectKeys = Object.keys(o).sort();
+	  const obj = Object.assign({}, ...sortedObjectKeys.map(k => ({[k]: o[k]})));
+	  return JSON.stringify(obj);
+	}))]
+	.map(s => JSON.parse(s));
+  }
+
 // dedupe the stops
-gtfsStops = [...new Set(gtfsStops)]
+gtfsStops = dedupe_object_array(gtfsStops)
 
 // filter out n/a stops and incorporate the stop_id
 gtfsStopTimes = gtfsStopTimes
