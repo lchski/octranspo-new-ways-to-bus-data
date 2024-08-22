@@ -95,8 +95,7 @@ scheduleData.forEach((schedule => {
 	gtfsStops.push(...schedule.stops.map(stop => ({
 		stop_id: stop.id,
 		stop_code: stop.code,
-		stop_name: stop.name,
-		display_name: stop.displayText
+		stop_name: stop.name
 	})))
 
 	gtfsTrips.push(...schedule.trips.map(trip => ({
