@@ -9,7 +9,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "dom-parser": "^1.1.5"
+    "csv-stringify": "^6.5.1",
+    "dom-parser": "^1.1.5",
+    "he": "^1.2.0"
   },
   "type": "module"
 }

@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { parseFromString } from 'dom-parser'
 import { stringify } from 'csv-stringify/sync'
+import he from 'he'
 
 const start = Date.now()
 
@@ -44,7 +45,7 @@ const stopCodeRegex = / - \(([0-9]{0,4})\)$/ // need the 0 in `{0,4}` to account
 
 const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((stop, i) => ({
 	stop_index: i,
-	name: stop.DisplayText.replace(stopCodeRegex, ''),
+	name: he.decode(stop.DisplayText.replace(stopCodeRegex, '')),
 	code: stop.DisplayText.match(stopCodeRegex)[1],
 	id: stop.Identifier
 }))
