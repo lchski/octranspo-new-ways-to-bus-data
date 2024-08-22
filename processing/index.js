@@ -40,24 +40,28 @@ const schedules = fs.readdirSync('data/schedules/', {
 		path: item.path + '/' + item.name
 	}))
 
+const stopCodeRegex = / - \(([0-9]{0,4})\)$/ // need the 0 in `{0,4}` to account for stops that just have a stop code of ` - ()`
 
-const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((stop, i) => ({
-	stop_index: i,
-	name: stop.DisplayText.split(' - ', 2)[0], // TODO / NB: this may cause a bug if " - " is found in a stop name when not separating the stop label and code
-	code: stop.DisplayText
-		.split(' - ', 2)[1]
-		.replaceAll('(', '')
-		.replaceAll(')', ''),
-	id: stop.Identifier
-}))
+const processStopsFromTimetable = (timetable) => timetable.StopViewModels.map((stop, i) => {
+	// console.log("stop.DisplayText", stop.DisplayText)
 
-// let testSchedules = schedules.slice(0,4)
-// const scheduleData = testSchedules.map(schedule => {
-const scheduleData = schedules.map(schedule => {
+	return {
+		stop_index: i,
+		name: stop.DisplayText.replace(stopCodeRegex, ''), // TODO / NB: this may cause a bug if " - " is found in a stop name when not separating the stop label and code
+		code: stop.DisplayText.match(stopCodeRegex)[1],
+		id: stop.Identifier,
+		displayText: stop.DisplayText
+	}
+})
+
+let testSchedules = schedules.slice(0,250)
+const scheduleData = testSchedules.map(schedule => {
+// const scheduleData = schedules.map(schedule => {
 	const scheduleDom = parseDomFromFile(schedule.path)
 	
 	const timetable = extractTimetableFromDom(scheduleDom)
 	const stops = processStopsFromTimetable(timetable)
+	// console.log('processing', schedule.path)
 
 	const scheduleDataWithoutTrips = {
 		...schedule,
@@ -96,7 +100,8 @@ scheduleData.forEach((schedule => {
 	gtfsStops.push(...schedule.stops.map(stop => ({
 		stop_id: stop.id,
 		stop_code: stop.code,
-		stop_name: stop.name
+		stop_name: stop.name,
+		display_name: stop.displayText
 	})))
 
 	gtfsTrips.push(...schedule.trips.map(trip => ({
