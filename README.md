@@ -11,6 +11,12 @@ chmod+x 2-download-schedules.sh
 ./2-download-schedules.sh
 ```
 
+## Processing
+
+`node processing/index.js`
+
+`duckdb < processing/csv-to-parquet.sql`
+
 
 ## API refs
 
