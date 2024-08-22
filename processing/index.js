@@ -63,7 +63,7 @@ const scheduleData = schedules.map(schedule => {
 		stops: stops,
 		timesAtStops: Object.values(timetable.PassingTimeViewModelsByStops).map((timesAtStop, i) => ({
 			stopIndex: i,
-			stopCode: stops[i].code,
+			stopId: stops[i].id,
 			times: timesAtStop.map(timeAtStop => timeAtStop.Time) // NB: this isn't stop_times in the GTFS sense, these are "all the times a bus stops at stop `i`"
 		})),
 		timetableTripCount: timetable.TripsCount,
@@ -77,7 +77,7 @@ const scheduleData = schedules.map(schedule => {
 		trips: scheduleDataWithoutTrips.tripIds.map((tripId, tripIndex) => ({
 			id: tripId,
 			stopTimes: scheduleDataWithoutTrips.timesAtStops.map((timesAtStop, stopIndex) => ({
-				stopCode: timesAtStop.stopCode,
+				stopId: timesAtStop.stopId,
 				arrivalTime: timesAtStop.times[tripIndex],
 				stopSequence: stopIndex
 			}))
@@ -107,7 +107,7 @@ scheduleData.forEach((schedule => {
 	schedule.trips.forEach(trip => gtfsStopTimes.push(...trip.stopTimes.map(stopTime => ({
 		trip_id: trip.id,
 		arrival_time: stopTime.arrivalTime,
-		stop_code: stopTime.stopCode,
+		stop_id: stopTime.stopId,
 		stop_sequence: stopTime.stopSequence
 	}))))
 }))
@@ -120,7 +120,7 @@ gtfsStopTimes = gtfsStopTimes
 	.filter(stop_time => stop_time.arrival_time !== '0001-01-01T00:00:00Z')
 	.map(stop_time => ({
 		...stop_time,
-		stop_id: gtfsStops.find(stop => stop.stop_code === stop_time.stop_code).stop_id
+		stop_code: gtfsStops.find(stop => stop.stop_id === stop_time.stop_id).stop_code
 	}))
 
 fs.writeFileSync('data/out/gtfs-stops.json', JSON.stringify(gtfsStops))
