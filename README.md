@@ -18,6 +18,32 @@ chmod+x 2-download-schedules.sh
 `duckdb < processing/csv-to-parquet.sql`
 
 
+## Converting OCT GTFS to our GTFS subset
+
+- `stop_times`: trip_id, arrival_time, stop_id, stop_sequence
+  - stop_id: different from stop_code
+- `stops`: stop_id, stop_code, stop_name, stop_lat, stop_lon, platform_code
+  - stop_id: almost never the same between GTFS and NWTB (see, e.g., Pimisi and Tremblay entries, but likely for others too)
+  - stop_code: 9 are null (they correspond to the ones from the NWTB data)
+  - platform_code: these are embedded in the stop_name for the NWTB data
+- `trips`: route_id, service_id, trip_id
+  - (NOT INCLUDED) trip_headsign: could be nice for display info, e.g., the actual names of the various trips
+  - (NOT INCLUDED) direction_id: again, could be nice
+
+## Cleaning / merging
+
+- `stops`
+  - some stops (identified by a shared or similar `stop_name`) have different `stop_codes` between the two subsets (see query "all stop_codes that appear only once in the dataset"), see "SOMERSET W / PRESTON" as an easy example
+    - consequences?
+      - this means some stops from the NWTB won't have lat/lng available, unless we can map them to existing ones from the GTFS
+    - fixes?
+      - we could use DuckDB's similarity functions to approximate...
+
+## Preparing data for web
+
+- for GTFS data, can "just" pick three representative days, and pull them based on schedules? [may require some fancy math for in / not in that day]
+
+
 ## API refs
 
 for routes on today’s date:
