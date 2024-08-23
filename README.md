@@ -38,6 +38,9 @@ chmod+x 2-download-schedules.sh
       - this means some stops from the NWTB won't have lat/lng available, unless we can map them to existing ones from the GTFS
     - fixes?
       - we could use DuckDB's similarity functions to approximate...
+  - platform code
+    - we could normalize `platform_code=1` to add "O-TRAIN WEST..." (etc for east), and merge in the code otherwise, to normalize
+    - ooooor we could not, if we're just going to smush stop_codes into one mega stop (likely using the highest stop_times per stop_id as the name?)
 
 ## Preparing data for web
 

@@ -6,10 +6,10 @@ SELECT * FROM stops WHERE stop_code IN (SELECT stop_code from stops GROUP BY sto
 
 -- all stop_names that appear for only GTFS or NWTB (with thanks to ChatGPT!):
 SELECT *
-· FROM stops
-· WHERE stop_name IN (
-·     SELECT stop_name
-·     FROM stops
-·     GROUP BY stop_name
-·     HAVING COUNT(DISTINCT source) = 1
-‣ );
+	FROM stops
+	WHERE stop_name IN (
+		SELECT stop_name
+		FROM stops
+		GROUP BY stop_name
+		HAVING COUNT(DISTINCT source) = 1
+	);
