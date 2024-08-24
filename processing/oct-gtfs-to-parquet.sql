@@ -124,7 +124,6 @@ UPDATE stop_times
 
 -- TODO:
 	-- sort out blank stop codes
-	-- filter source=octranspo-gtfs to just three representative services (weekday, Saturday, Sunday) [will have to figure out service_id logic; maybe re-use JS in a standalone notebook to generate a string you can paste in]
 	-- dedupe stops / create a standard set of IDs and codes, to draw from GTFS lat/lng
 	-- condense multi-platform/entry stops into a single one (multiple stop_id per stop_code likely best indicator) [based on which has the most stop_times?]
 	-- ? pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
