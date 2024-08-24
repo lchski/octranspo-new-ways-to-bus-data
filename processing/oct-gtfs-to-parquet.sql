@@ -1,10 +1,10 @@
-CREATE TABLE feed_info as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-09-GTFSExport/feed_info.txt", dateformat='%Y%m%d', types={'feed_start_date': 'DATE', 'feed_end_date': 'DATE'});
-CREATE TABLE calendar as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-09-GTFSExport/calendar.txt", dateformat='%Y%m%d', types={'start_date': 'DATE', 'end_date': 'DATE'});
-CREATE TABLE calendar_dates as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-09-GTFSExport/calendar_dates.txt", dateformat='%Y%m%d', types={'date': 'DATE'});
+CREATE TABLE feed_info as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/feed_info.txt", dateformat='%Y%m%d', types={'feed_start_date': 'DATE', 'feed_end_date': 'DATE'});
+CREATE TABLE calendar as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/calendar.txt", dateformat='%Y%m%d', types={'start_date': 'DATE', 'end_date': 'DATE'});
+CREATE TABLE calendar_dates as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/calendar_dates.txt", dateformat='%Y%m%d', types={'date': 'DATE'});
 
-CREATE TABLE stops as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-09-GTFSExport/stops.txt");
-CREATE TABLE stop_times as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-09-GTFSExport/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
-CREATE TABLE trips as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-09-GTFSExport/trips.txt");
+CREATE TABLE stops as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/stops.txt");
+CREATE TABLE stop_times as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
+CREATE TABLE trips as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/trips.txt");
 
 -- add OCT GTFS as source
 ALTER TABLE stops ADD COLUMN source VARCHAR DEFAULT 'octranspo-gtfs';
@@ -60,6 +60,7 @@ UPDATE stop_times
         arrival_time[4:5]::Integer / 60
       ), 2);
 
+-- service window times from: https://www.octranspo.com/en/our-services/bus-o-train-network/service-types/o-train-line-1#hoursOp
 UPDATE stop_times
 	SET service_window = CASE
       WHEN arrival_time_frac >= 5 AND arrival_time_frac < 6.5 THEN 'off_peak_morning'
@@ -83,6 +84,30 @@ UPDATE stop_times
 	SET stop_code = stops.stop_code
 	FROM stops
 	WHERE stop_times.source = stops.source AND stop_times.stop_id = stops.stop_id;
+
+
+-- filter down to just representative data
+--- JSON generated with: https://observablehq.com/d/fb22d192264eb8f6
+CREATE TEMP TABLE gtfs_representative_service_ids AS
+    SELECT *
+    FROM read_json(
+		"data/source/octranspo-gtfs/2024-08-24-gtfs_representative_service_ids.json",
+		columns = {service_id: 'VARCHAR'}
+	);
+
+DELETE FROM trips
+WHERE NOT (
+    source = 'nwtb'
+    OR
+    service_id IN (SELECT service_id FROM gtfs_representative_service_ids)
+);
+
+DELETE FROM stop_times
+WHERE NOT (
+    source = 'nwtb'
+    OR
+    service_id IN (SELECT service_id FROM gtfs_representative_service_ids)
+);
 
 
 
