@@ -88,12 +88,13 @@ UPDATE stop_times
 
 -- filter down to just representative data
 --- JSON generated with: https://observablehq.com/d/fb22d192264eb8f6
-CREATE TEMP TABLE gtfs_representative_service_ids AS
+CREATE TEMP TABLE gtfs_representative_services AS
     SELECT *
-    FROM read_json(
-		"data/source/octranspo-gtfs/2024-08-24-gtfs_representative_service_ids.json",
-		columns = {service_id: 'VARCHAR'}
-	);
+    FROM read_csv("data/source/octranspo-gtfs/2024-08-24-gtfs_representative_services.csv");
+
+UPDATE gtfs_representative_services
+	SET day_of_week = 'weekday'
+	WHERE day_of_week = 'friday';
 
 DELETE FROM trips
 WHERE NOT (
@@ -108,6 +109,16 @@ WHERE NOT (
     OR
     service_id IN (SELECT service_id FROM gtfs_representative_service_ids)
 );
+
+UPDATE trips
+	SET service_id = gtfs_representative_services.day_of_week
+	FROM gtfs_representative_services
+	WHERE trips.service_id = gtfs_representative_services.service_id;
+
+UPDATE stop_times
+	SET service_id = gtfs_representative_services.day_of_week
+	FROM gtfs_representative_services
+	WHERE stop_times.service_id = gtfs_representative_services.service_id;
 
 
 
