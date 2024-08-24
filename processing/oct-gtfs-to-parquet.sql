@@ -1,6 +1,6 @@
-CREATE TABLE feed_info as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/feed_info.txt", dateformat='%Y%m%d', types={'feed_start_date': 'DATE', 'feed_end_date': 'DATE'});
-CREATE TABLE calendar as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/calendar.txt", dateformat='%Y%m%d', types={'start_date': 'DATE', 'end_date': 'DATE'});
-CREATE TABLE calendar_dates as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/calendar_dates.txt", dateformat='%Y%m%d', types={'date': 'DATE'});
+-- CREATE TABLE feed_info as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/feed_info.txt", dateformat='%Y%m%d', types={'feed_start_date': 'DATE', 'feed_end_date': 'DATE'});
+-- CREATE TABLE calendar as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/calendar.txt", dateformat='%Y%m%d', types={'start_date': 'DATE', 'end_date': 'DATE'});
+-- CREATE TABLE calendar_dates as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/calendar_dates.txt", dateformat='%Y%m%d', types={'date': 'DATE'});
 
 CREATE TABLE stops as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/stops.txt");
 CREATE TABLE stop_times as SELECT * FROM read_csv("data/source/octranspo-gtfs/2024-08-24-GTFSExport/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
