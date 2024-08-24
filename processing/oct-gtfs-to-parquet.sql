@@ -42,8 +42,56 @@ UPDATE trips
 	SET source = 'nwtb'
 	WHERE source IS NULL;
 
+-- normalize NWTB data to GTFS format
+UPDATE stop_times
+	SET arrival_time = arrival_time[12:19]
+	WHERE source = 'nwtb';
 
--- TODO: join stop_code into stop_times? we do this already in the NWTB data, would just have to always join on source and the var of interest
---		 NB: we'd still have the blank stop codes for a few
+
+
+-- add service windows
+ALTER TABLE stop_times ADD COLUMN arrival_time_frac DOUBLE; --- arrival_time_frac and service_window;
+ALTER TABLE stop_times ADD COLUMN service_window VARCHAR;
+
+UPDATE stop_times
+	SET arrival_time_frac = round(
+      add(
+        arrival_time[0:2]::Integer,
+        arrival_time[4:5]::Integer / 60
+      ), 2);
+
+UPDATE stop_times
+	SET service_window = CASE
+      WHEN arrival_time_frac >= 5 AND arrival_time_frac < 6.5 THEN 'off_peak_morning'
+      WHEN arrival_time_frac >= 6.5 AND arrival_time_frac < 9 THEN 'peak_morning'
+      WHEN arrival_time_frac >= 9 AND arrival_time_frac < 15 THEN 'off_peak_midday'
+      WHEN arrival_time_frac >= 15 AND arrival_time_frac < 18.5 THEN 'peak_afternoon'
+      WHEN arrival_time_frac >= 18.5 AND arrival_time_frac < 23 THEN 'off_peak_evening'
+      ELSE 'off_peak_night'
+    END;
+
+-- join trip ID and stop code from relevant tables
+ALTER TABLE stop_times ADD COLUMN service_id VARCHAR;
+ALTER TABLE stop_times ADD COLUMN stop_code VARCHAR;
+
+UPDATE stop_times
+	SET service_id = trips.service_id
+	FROM trips
+	WHERE stop_times.source = trips.source AND stop_times.trip_id = trips.trip_id;
+
+UPDATE stop_times
+	SET stop_code = stops.stop_code
+	FROM stops
+	WHERE stop_times.source = stops.source AND stop_times.stop_id = stops.stop_id;
+
+
+
+-- TODO:
+	-- sort out blank stop codes
+	-- filter source=octranspo-gtfs to just three representative services (weekday, Saturday, Sunday) [will have to figure out service_id logic; maybe re-use JS in a standalone notebook to generate a string you can paste in]
+	-- dedupe stops / create a standard set of IDs and codes, to draw from GTFS lat/lng
+	-- condense multi-platform/entry stops into a single one (multiple stop_id per stop_code likely best indicator) [based on which has the most stop_times?]
+	-- ? pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
+	-- drop columns that aren't used in analysis before exporting
 
 EXPORT DATABASE 'oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');
