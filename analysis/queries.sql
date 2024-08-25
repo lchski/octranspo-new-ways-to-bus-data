@@ -191,3 +191,22 @@ CREATE TEMP TABLE similar_stops
     similarity >= 0.85  -- Adjust this threshold as needed
   ORDER BY 
     similarity DESC, distance;
+
+
+
+
+
+-- figuring out route_id and direction_id
+copy (
+  select
+    source, route_id, direction_id, count(*)
+  from trips
+  group by source, route_id, direction_id
+  order by source, route_id, direction_id
+) to 'data/out/tmp.csv';
+  -- for GTFS, see that there are ~4 entries per route, half suffixed by `-1`
+  -- to compare, can use the unchanged routes listed on the site / CBC: https://www.cbc.ca/news/canada/ottawa/oc-transpo-route-change-cut-2024-otrain-trillium-1.7155003
+
+-- trying to figure out service changes / data quality issues
+select source, service_id, count(*) from trips group by source, service_id ORDER BY service_id, source DESC;
+select source, service_id, count(*) from stop_times group by source, service_id ORDER BY service_id, source DESC;

@@ -129,10 +129,11 @@ UPDATE stop_times
 
 
 -- TODO:
-	-- sort out blank stop codes
-	-- dedupe stops / create a standard set of IDs and codes, to draw from GTFS lat/lng
-	-- condense multi-platform/entry stops into a single one (multiple stop_id per stop_code likely best indicator) [based on which has the most stop_times?]
-	-- ? pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
-	-- drop columns that aren't used in analysis before exporting
+	-- stops: sort out blank stop codes
+	-- stops: dedupe stops / create a standard set of IDs and codes, to draw from GTFS lat/lng
+	-- stops, stop_times: condense multi-platform/entry stops into a single one (multiple stop_id per stop_code likely best indicator) [based on which has the most stop_times?]
+	-- ? stops: pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
+	-- trips: convert route_id for nwtb data to move the direction (currently embedded in route_id) into direction_id
+	-- all: drop columns that aren't used in analysis before exporting
 
 EXPORT DATABASE 'oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');
