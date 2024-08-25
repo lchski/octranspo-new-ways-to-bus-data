@@ -106,14 +106,14 @@ DELETE FROM trips
 WHERE NOT (
     source = 'nwtb'
     OR
-    service_id IN (SELECT service_id FROM gtfs_representative_service_ids)
+    service_id IN (SELECT service_id FROM gtfs_representative_services)
 );
 
 DELETE FROM stop_times
 WHERE NOT (
     source = 'nwtb'
     OR
-    service_id IN (SELECT service_id FROM gtfs_representative_service_ids)
+    service_id IN (SELECT service_id FROM gtfs_representative_services)
 );
 
 UPDATE trips
@@ -136,4 +136,4 @@ UPDATE stop_times
 	-- trips: convert route_id for nwtb data to move the direction (currently embedded in route_id) into direction_id
 	-- all: drop columns that aren't used in analysis before exporting
 
-EXPORT DATABASE 'oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');
+EXPORT DATABASE 'data/out/oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');
