@@ -19,4 +19,9 @@ nwtb,AJ500,LAYUP,ditto oct-9132 but for CANTERBURY / HARDING (code 7277)
 octranspo-gtfs,4043,3013,this is an "off only" so use code for DOMINION station
 nwtb,NH921,3013,this is an "off only" so use code for DOMINION station
 octranspo-gtfs ,7386,LAYUP,layup for DONALD / TELFORD (code 3578)
-octranspo-gtfs ,10283,LAYUP,layup for code 0452
+octranspo-gtfs ,10283,LAYUP,layup for KATIMAVIK / MCGIBBON (code 0452)
+octranspo-gtfs ,10236,LAYUP,layup for JASMINE / OGILVIE (code 8656)
+octranspo-gtfs ,1605,LAYUP,layup for JEANNE D'ARC / BILBERRY (code 7914)
+octranspo-gtfs ,2594,3022,this is an R1 / truncated 16 so use code for LEES station
+octranspo-gtfs ,7382,LAYUP,layup for LONGFIELD - DAVIDSON HEIGHTS H.S. (code 0689) MOST OF THE TIME -- there are a few trips where it is maybe the end of a route; we'll just simplify and set those aside
+octranspo-gtfs ,10229,LAYUP,layup for LOUIS RIEL H.S (code 0098) MOST OF THE TIME -- same above

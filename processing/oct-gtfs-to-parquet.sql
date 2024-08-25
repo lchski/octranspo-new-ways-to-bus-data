@@ -160,5 +160,6 @@ WHERE (
 	-- trips: convert route_id for nwtb data to move the direction (currently embedded in route_id) into direction_id
 	-- trips: (related to previous) bring trip_headsign in from source HTML / JSON
 	-- all: drop columns that aren't used in analysis before exporting
+	-- likely just for viz? filter out R1?
 
 EXPORT DATABASE 'data/out/oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');

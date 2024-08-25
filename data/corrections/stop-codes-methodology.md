@@ -31,23 +31,23 @@ CREATE MACRO trips_for_stop_id(stop_id_param) AS TABLE
 	select * from trips where trip_id in (select trip_id from stop_times where stop_id = stop_id_param::VARCHAR);
 
 CREATE MACRO journeys_for_stop_id(stop_id_param, n_stops := 3) AS TABLE
-	select st.*, s.stop_name from stop_times st LEFT JOIN stops s ON st.source = s.source AND st.stop_id = s.stop_id where trip_id in (select trip_id from stop_times where stop_id = stop_id_param::VARCHAR) and stop_sequence < (n_stops + 1);
+	select st.*, s.stop_name from stop_times st LEFT JOIN stops s ON st.source = s.source AND st.stop_id = s.stop_id where trip_id in (select trip_id from stop_times where stop_id = stop_id_param::VARCHAR) and stop_sequence < (n_stops + 1) ORDER BY trip_id, stop_sequence;
 ```
 
 run this (replace stop name / stop ID as required):
 
 ```sql
-FROM similar_stop_names('DAUPHIN%');
+FROM similar_stop_names('LONGFIELD%');
 
-FROM stop_times_for_stop_id('10283');
+FROM stop_times_for_stop_id('10229');
 
-FROM trips_for_stop_id('10283');
+FROM trips_for_stop_id('10229');
 
-FROM journeys_for_stop_id('10283');
+FROM journeys_for_stop_id('10229');
 
 -- optional, for more journeys, note particular syntax
-FROM journeys_for_stop_id('10283', n_stops := 5);
+FROM journeys_for_stop_id('10229', n_stops := 5);
 
 -- optional, for custom journey sequencing (i.e., mid-route stops) based on stop_times
-select * from stop_times where trip_id in (select trip_id from stop_times where stop_id = '10283') and stop_sequence > 60 and stop_sequence < 66;
+select * from stop_times where trip_id in (select trip_id from stop_times where stop_id = '10229') and stop_sequence > 60 and stop_sequence < 66;
 ```
