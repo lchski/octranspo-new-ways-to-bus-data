@@ -128,12 +128,37 @@ UPDATE stop_times
 
 
 
+-- remove stop / stop times associated with a set of "auto-generated" trips
+DELETE FROM stop_times
+WHERE (
+	source = 'octranspo-gtfs'
+	AND
+	stop_id IN ('1', '9489')
+);
+
+DELETE FROM stops
+WHERE (
+	source = 'octranspo-gtfs'
+	AND
+	stop_id IN ('1', '9489')
+);
+
+DELETE FROM trips
+WHERE (
+	source = 'octranspo-gtfs'
+	AND
+	route_id = '109'
+	AND
+	trip_headsign = 'Auto Generated-01'
+)
+
 -- TODO:
 	-- stops: sort out blank stop codes
 	-- stops: dedupe stops / create a standard set of IDs and codes, to draw from GTFS lat/lng
 	-- stops, stop_times: condense multi-platform/entry stops into a single one (multiple stop_id per stop_code likely best indicator) [based on which has the most stop_times?]
 	-- ? stops: pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
 	-- trips: convert route_id for nwtb data to move the direction (currently embedded in route_id) into direction_id
+	-- trips: (related to previous) bring trip_headsign in from source HTML / JSON
 	-- all: drop columns that aren't used in analysis before exporting
 
 EXPORT DATABASE 'data/out/oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');

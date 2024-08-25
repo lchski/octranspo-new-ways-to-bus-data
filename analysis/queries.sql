@@ -210,3 +210,13 @@ copy (
 -- trying to figure out service changes / data quality issues
 select source, service_id, count(*) from trips group by source, service_id ORDER BY service_id, source DESC;
 select source, service_id, count(*) from stop_times group by source, service_id ORDER BY service_id, source DESC;
+
+
+-- stops that don't have any stop_times
+FROM stops ANTI JOIN stop_times USING (stop_id);
+
+-- stop times with missing trip info
+FROM stop_times ANTI JOIN trips USING (trip_id);
+
+-- trips with no stop times
+FROM trips ANTI JOIN stop_times USING (trip_id);
