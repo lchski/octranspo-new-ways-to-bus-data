@@ -1,0 +1,22 @@
+source,stop_id,stop_code,notes
+octranspo-gtfs,7370,LAYUP,layup for ABBEYHILL / A.Y. JACKSON H.S. (code 6941)
+octranspo-gtfs,7383,LAYUP,layup for ALTA VISTA / RIDGEMONT (code 8425)
+octranspo-gtfs,7737,LAYUP,layup for HERON / ST PATS H.S. (code 8359)
+nwtb,DT022,TEMP,temporary stop for #5 north of Elgin police station
+octranspo-gtfs,10456,TEMP,temporary stop for #5 north of Elgin police station
+nwtb,DT021,TEMP,ditto temp for #5
+octranspo-gtfs,10455,TEMP,ditto temp for #5
+octranspo-gtfs,10454,7662,only used for route 56 [goes in a slightly different direction so technically a different stop but close enough we'll round]
+octranspo-gtfs ,10314,LAYUP,layup for BELL H.S / NORTH (code 5302)
+octranspo-gtfs ,4971,LAYUP,layup for BROADVIEW / NOTRE DAME H.S. (code 0539)
+octranspo-gtfs ,987,LAYUP,layup for BROOKFIELD / FLANNERY (code 8913)
+octranspo-gtfs ,9807,LAYUP,layup for FERN CASEY / RENAUD (code 8136)
+octranspo-gtfs ,10442,LAYUP,layup for CEDARVIEW MIDDLE SCHOOL (two routes and two slightly different stops codes 0532 and 0538)
+octranspo-gtfs ,6085,LAYUP,end-of-route layup for #305 (previous stop 11 minutes earlier nothing in route planner or Google Maps)
+octranspo-gtfs ,2406,LAYUP,layup for CHESTERTON / OMER-DESLAURIERS (various routes code 6001)
+octranspo-gtfs,9132,LAYUP,layup for HILLCREST HIGH SCHOOL (code 0096) [kinda... Hillcrest is actually the layup but we'll let it stay because it already has a code and we're not doing duration math with this data]
+nwtb,AJ500,LAYUP,ditto oct-9132 but for CANTERBURY / HARDING (code 7277)
+octranspo-gtfs,4043,3013,this is an "off only" so use code for DOMINION station
+nwtb,NH921,3013,this is an "off only" so use code for DOMINION station
+octranspo-gtfs ,7386,LAYUP,layup for DONALD / TELFORD (code 3578)
+octranspo-gtfs ,10283,LAYUP,layup for code 0452
