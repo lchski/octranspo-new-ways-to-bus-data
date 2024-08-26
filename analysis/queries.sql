@@ -192,6 +192,9 @@ CREATE TEMP TABLE similar_stops AS
   ORDER BY 
     similarity DESC, distance;
 
+--- comparing new to old stops, which don't share a stop ID? i.e., which need addressing
+FROM (PIVOT stops ON source GROUP BY stop_id) where nwtb != "octranspo-gtfs";
+FROM (PIVOT stops ON source GROUP BY stop_id) where nwtb != "octranspo-legacy-gtfs";
 
 
 
