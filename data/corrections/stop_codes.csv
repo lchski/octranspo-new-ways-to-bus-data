@@ -25,3 +25,23 @@ octranspo-gtfs ,1605,LAYUP,layup for JEANNE D'ARC / BILBERRY (code 7914)
 octranspo-gtfs ,2594,3022,this is an R1 / truncated 16 so use code for LEES station
 octranspo-gtfs ,7382,LAYUP,layup for LONGFIELD - DAVIDSON HEIGHTS H.S. (code 0689) MOST OF THE TIME -- there are a few trips where it is maybe the end of a route; we'll just simplify and set those aside
 octranspo-gtfs ,10229,LAYUP,layup for LOUIS RIEL H.S (code 0098) MOST OF THE TIME -- same above
+octranspo-gtfs ,2599,LAYUP,layup for MAIN / OBLATS (code 6809) [Immaculata]
+octranspo-gtfs ,4611,LAYUP,layup for VALIN / CHARLEMAGNE (code 8933)
+octranspo-gtfs ,6897    ,LAYUP,layup for OGILVIE / KENDER (code 0550)
+octranspo-gtfs ,1632    ,LAYUP,layup for ORLÉANS / CAIRINE WILSON H.S. (code 0790)
+octranspo-gtfs ,9884    ,7941,this is an odd trip that seems to run through the stop FORTUNE / ORLÉANS (same name but reversed order) so we use that code
+octranspo-gtfs ,10285   ,LAYUP,layup for PIERRE-DE-BLOIS (code 0824)
+octranspo-gtfs ,10284   ,LAYUP,layup for PIERRE-DE-BLOIS (code 0825)
+octranspo-gtfs ,6086    ,PRINCE OF WALES / CENTURY         ,45.192563 ,-75.725032 ,
+octranspo-gtfs ,10012   ,PROMENADE / TERRASSES #2          ,45.424986 ,-75.721203 ,
+nwtb           ,CK211   ,PROMENADE / TERRASSES #2          ,           ,
+octranspo-gtfs ,9659    ,RICHARDSON / ALL SAINTS H.S.      ,45.322716 ,-75.925353 ,
+nwtb           ,DT051   ,RING ROAD                         ,           ,
+octranspo-gtfs ,10457   ,RING ROAD                         ,45.399564 ,-75.651254 ,
+octranspo-gtfs ,8043    ,SAMUEL GENEST                     ,45.442178 ,-75.62867  ,
+octranspo-gtfs ,9573    ,SMYTH / FRANCO-CITÉ               ,45.399925 ,-75.64151  ,
+octranspo-gtfs ,10029   ,ST-PAUL H.S                       ,45.340997 ,-75.792116 ,
+octranspo-gtfs ,10377   ,WESTBORO OFF ONLY                 ,45.395739 ,-75.753067 ,
+nwtb           ,NC941   ,WESTBORO OFF ONLY                 ,           ,
+
+

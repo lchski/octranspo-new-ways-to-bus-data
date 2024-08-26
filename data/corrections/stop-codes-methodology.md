@@ -2,6 +2,7 @@ e.g., octranspo-gtfs ,7383    ,          ,ALTA VISTA / AYERS                ,45.
 
 - look for stops with a similar stop name:
 	`from stops where stop_name like 'ALTA VISTA / A%';`
+	(for intersections, try also flipping the order, e.g., "PRINCE OF WALES / CENTURY", try "CENTURY / P%" as well)
 - if none immediately apparent, look at the lat / lng in Google Maps
 	- sometimes there's an actual stop there, with a code—ideal!
 	- in this case, the lat / lng returns further up the road, basically at ALTA VISTA / RIDGEMONT
@@ -39,15 +40,15 @@ run this (replace stop name / stop ID as required):
 ```sql
 FROM similar_stop_names('LONGFIELD%');
 
-FROM stop_times_for_stop_id('10229');
+FROM stop_times_for_stop_id('6086');
 
-FROM trips_for_stop_id('10229');
+FROM trips_for_stop_id('6086');
 
-FROM journeys_for_stop_id('10229');
+FROM journeys_for_stop_id('6086');
 
 -- optional, for more journeys, note particular syntax
-FROM journeys_for_stop_id('10229', n_stops := 5);
+FROM journeys_for_stop_id('6086', n_stops := 5);
 
 -- optional, for custom journey sequencing (i.e., mid-route stops) based on stop_times
-select * from stop_times where trip_id in (select trip_id from stop_times where stop_id = '10229') and stop_sequence > 60 and stop_sequence < 66;
+select * from stop_times where trip_id in (select trip_id from stop_times where stop_id = '6086') and stop_sequence > 60 and stop_sequence < 66;
 ```
