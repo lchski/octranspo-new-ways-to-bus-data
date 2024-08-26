@@ -134,10 +134,10 @@ LIMIT
 
   -- possible final WHERE clauses for above, depending on goal:
     -- find stop codes that _haven't_ changed (IDs may be different): similarity = 1 AND code1 = code2
-    -- find stop codes that have definitely changed: similarity = 1 AND code1 != code2
+    -- find stop codes that have definitely changed OR share the same name but are legitimately different stops (e.g., diff side of same street): similarity = 1 AND code1 != code2
 
 -- same as above, into a temp table
-CREATE TEMP TABLE similar_stops
+CREATE TEMP TABLE similar_stops AS
   WITH stop_pairs AS (
     SELECT 
       a.stop_name AS name1,
@@ -218,6 +218,7 @@ select source, service_id, count(*) from stop_times group by source, service_id 
 --- but there's only one trip each direction in the trip planner!
 --- but _why_...
 --- (decent indicator is the multiple trips with the exact same arrival_time—though that seemed to be a somewhat normal case for school routes, IIRC)
+--- ** 2024-08-26: it was a bug in my Observable date handling! bahahaha. of course. note that by doing Friday as "representative" service we'll lose a few shopper routes—could manually add back in
 
 
 -- stops that don't have any stop_times
