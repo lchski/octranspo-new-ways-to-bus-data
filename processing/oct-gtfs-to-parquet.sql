@@ -128,7 +128,8 @@ UPDATE stop_times
 
 
 
--- remove stop / stop times associated with a set of "auto-generated" trips
+-- CLEANING
+--- remove stop / stop times associated with a set of "auto-generated" trips
 DELETE FROM stop_times
 WHERE (
 	source = 'octranspo-gtfs'
