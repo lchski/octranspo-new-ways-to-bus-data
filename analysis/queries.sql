@@ -211,6 +211,13 @@ copy (
 select source, service_id, count(*) from trips group by source, service_id ORDER BY service_id, source DESC;
 select source, service_id, count(*) from stop_times group by source, service_id ORDER BY service_id, source DESC;
 
+--- !! a clue: looking at trips for route 305 for 2024-09-13 in the route planner 
+--- https://plan.octranspo.com/plan/RouteSchedules?Date=2024-9-13&RouteKey=305~~Direction2&ShowOptions=false&TimingPointsOnly=false
+--- works for both directions (CARLINGWOOD etc or NORTH GOWER etc)
+--- there are three trips each direction in the database `from trips where route_id LIKE '305%';`
+--- but there's only one trip each direction in the trip planner!
+--- but _why_...
+
 
 -- stops that don't have any stop_times
 FROM stops ANTI JOIN stop_times USING (stop_id);
