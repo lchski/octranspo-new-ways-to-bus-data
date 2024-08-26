@@ -217,6 +217,7 @@ select source, service_id, count(*) from stop_times group by source, service_id 
 --- there are three trips each direction in the database `from trips where route_id LIKE '305%';`
 --- but there's only one trip each direction in the trip planner!
 --- but _why_...
+--- (decent indicator is the multiple trips with the exact same arrival_time—though that seemed to be a somewhat normal case for school routes, IIRC)
 
 
 -- stops that don't have any stop_times
