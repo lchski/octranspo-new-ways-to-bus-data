@@ -94,6 +94,12 @@ UPDATE stop_times
 
 -- filter down to just representative data
 --- JSON generated with: https://observablehq.com/d/fb22d192264eb8f6
+ALTER TABLE trips ADD COLUMN service_id_original VARCHAR;
+UPDATE trips
+	SET service_id_original = service_id;
+
+
+
 CREATE TEMP TABLE gtfs_representative_services AS
     SELECT *
     FROM read_csv("data/source/octranspo-legacy-gtfs/2024-08-26-legacy-gtfs_representative_services.csv");
@@ -101,6 +107,24 @@ CREATE TEMP TABLE gtfs_representative_services AS
 UPDATE gtfs_representative_services
 	SET day_of_week = 'weekday'
 	WHERE day_of_week = 'friday';
+
+--- backup entries before deletion from main tables
+CREATE TABLE trips_unused AS
+	FROM trips
+	WHERE NOT (
+		source = 'nwtb'
+		OR
+		service_id IN (SELECT service_id FROM gtfs_representative_services)
+	);
+
+CREATE TABLE stop_times_unused AS
+	FROM stop_times
+	WHERE NOT (
+		source = 'nwtb'
+		OR
+		service_id IN (SELECT service_id FROM gtfs_representative_services)
+	);
+
 
 DELETE FROM trips
 WHERE NOT (
