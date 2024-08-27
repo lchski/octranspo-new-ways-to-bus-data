@@ -109,6 +109,7 @@ UPDATE gtfs_representative_services
 	WHERE day_of_week = 'friday';
 
 --- backup entries before deletion from main tables
+---- if you want to see the "original", run: `FROM trips UNION FROM trips_unused;` or the same for stop_times
 CREATE TABLE trips_unused AS
 	FROM trips
 	WHERE NOT (
