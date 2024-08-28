@@ -92,6 +92,34 @@ UPDATE stop_times
 	WHERE stop_times.source = stops.source AND stop_times.stop_id = stops.stop_id;
 
 
+-- join in the better route detail data
+CREATE TEMPORARY TABLE temp_routes AS
+	FROM read_csv('data/out/gtfs-routes-for-sql.csv');
+
+UPDATE trips
+SET
+	trip_headsign = temp_routes.trip_headsign,
+	direction_id = temp_routes.direction_id
+FROM temp_routes
+WHERE
+	trips.route_id = temp_routes.route_id
+	AND trips.source = 'nwtb';
+
+DROP TABLE temp_routes;
+
+-- standardize route IDs to enable comparison
+UPDATE trips
+	SET route_id = REGEXP_REPLACE(route_id, '-350$', '')
+	WHERE source = 'octranspo-legacy-gtfs';
+
+UPDATE trips
+	SET route_id = REGEXP_REPLACE(route_id, '-Direction[12]$', '')
+	WHERE source = 'nwtb';
+
+-- fix occasional odd trip_headsign formatting
+UPDATE trips
+	set trip_headsign = TRIM(trip_headsign);
+
 -- filter down to just representative data
 --- JSON generated with: https://observablehq.com/d/fb22d192264eb8f6
 ALTER TABLE trips ADD COLUMN service_id_original VARCHAR;
@@ -152,33 +180,7 @@ UPDATE stop_times
 	WHERE stop_times.service_id = gtfs_representative_services.service_id;
 
 
--- join in the better route detail data
-CREATE TEMPORARY TABLE temp_routes AS
-	FROM read_csv('data/out/gtfs-routes-for-sql.csv');
 
-UPDATE trips
-SET
-	trip_headsign = temp_routes.trip_headsign,
-	direction_id = temp_routes.direction_id
-FROM temp_routes
-WHERE
-	trips.route_id = temp_routes.route_id
-	AND trips.source = 'nwtb';
-
-DROP TABLE temp_routes;
-
--- standardize route IDs to enable comparison
-UPDATE trips
-	SET route_id = REGEXP_REPLACE(route_id, '-350$', '')
-	WHERE source = 'octranspo-legacy-gtfs';
-
-UPDATE trips
-	SET route_id = REGEXP_REPLACE(route_id, '-Direction[12]$', '')
-	WHERE source = 'nwtb';
-
--- fix occasional odd trip_headsign formatting
-UPDATE trips
-	set trip_headsign = TRIM(trip_headsign);
 
 
 
