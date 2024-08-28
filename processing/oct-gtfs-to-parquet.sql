@@ -152,6 +152,35 @@ UPDATE stop_times
 	WHERE stop_times.service_id = gtfs_representative_services.service_id;
 
 
+-- join in the better route detail data
+CREATE TEMPORARY TABLE temp_routes AS
+	FROM read_csv('data/out/gtfs-routes-for-sql.csv');
+
+UPDATE trips
+SET
+	trip_headsign = temp_routes.trip_headsign,
+	direction_id = temp_routes.direction_id
+FROM temp_routes
+WHERE
+	trips.route_id = temp_routes.route_id
+	AND trips.source = 'nwtb';
+
+DROP TABLE temp_routes;
+
+-- standardize route IDs to enable comparison
+UPDATE trips
+	SET route_id = REGEXP_REPLACE(route_id, '-350$', '')
+	WHERE source = 'octranspo-legacy-gtfs';
+
+UPDATE trips
+	SET route_id = REGEXP_REPLACE(route_id, '-Direction[12]$', '')
+	WHERE source = 'nwtb';
+
+-- fix occasional odd trip_headsign formatting
+UPDATE trips
+	set trip_headsign = TRIM(trip_headsign);
+
+
 
 -- CLEANING
 --- remove stop / stop times associated with a set of "auto-generated" trips

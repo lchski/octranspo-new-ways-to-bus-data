@@ -232,3 +232,6 @@ FROM stop_times ANTI JOIN trips USING (trip_id);
 
 -- trips with no stop times
 FROM trips ANTI JOIN stop_times USING (trip_id);
+
+-- rough comparison of trips between the two sources (also enables figuring out Direction1/2 maybe?)
+select source, route_id, direction_id, trip_headsign, count(*) from trips group by all order by route_id, source;
