@@ -235,3 +235,35 @@ FROM trips ANTI JOIN stop_times USING (trip_id);
 
 -- rough comparison of trips between the two sources (also enables figuring out Direction1/2 maybe?)
 select source, route_id, direction_id, trip_headsign, count(*) from trips group by all order by route_id, source;
+
+
+
+-- wild query to find the most frequently used stops (regardless of differing stop_id for the same stop_code) [thanks Claude!]
+WITH stop_times_count AS (
+    SELECT source, service_id, stop_code, COUNT(*) AS n
+    FROM stop_times
+    GROUP BY source, service_id, stop_code
+    ORDER BY n DESC
+),
+stop_names_ranked AS (
+    SELECT 
+        st.source,
+        st.stop_code,
+        s.stop_name,
+        COUNT(*) AS stop_count,
+        ROW_NUMBER() OVER (PARTITION BY st.source, st.stop_code ORDER BY COUNT(*) DESC) AS rn
+    FROM stop_times st
+    JOIN stops s ON st.source = s.source AND st.stop_id = s.stop_id
+    GROUP BY st.source, st.stop_code, s.stop_name
+)
+SELECT 
+    stc.source, 
+    stc.service_id, 
+    stc.stop_code, 
+    snr.stop_name, 
+    stc.n
+FROM stop_times_count stc
+LEFT JOIN stop_names_ranked snr ON stc.source = snr.source 
+    AND stc.stop_code = snr.stop_code
+    AND snr.rn = 1
+ORDER BY stc.n DESC;
