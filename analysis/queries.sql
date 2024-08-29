@@ -267,3 +267,95 @@ LEFT JOIN stop_names_ranked snr ON stc.source = snr.source
     AND stc.stop_code = snr.stop_code
     AND snr.rn = 1
 ORDER BY stc.n DESC;
+
+-- number of stops per trip
+select t.*, st.n_stops
+  from trips t
+  join (select trip_id, count(*) as n_stops from stop_times group by trip_id) st
+  on t.trip_id = st.trip_id;
+
+-- 
+select t.*, st.n_stops, st.trip_start
+  from trips t 
+  join (
+    select trip_id, count(*) as n_stops, min(arrival_time) as trip_start
+    from (from stop_times order by trip_id, stop_sequence)
+    group by trip_id
+  ) st
+  on t.trip_id = st.trip_id;
+  --- e.g. where route_id = '2'
+
+CREATE MACRO route_trip_details(route_id_param) AS TABLE
+  select t.*, st.n_stops, st.trip_start
+    from trips t
+    join (
+      select trip_id, count(*) as n_stops, min(arrival_time) as trip_start
+      from (from stop_times order by trip_id, stop_sequence)
+      group by trip_id
+    ) st
+    on t.trip_id = st.trip_id
+    where route_id = route_id_param::VARCHAR
+    order by source, service_id, trip_start;
+
+CREATE MACRO trip_stop_details(trip_id_param) AS TABLE
+  SELECT st.*, s.stop_name
+  FROM stop_times st
+  JOIN stops s
+  ON st.source = s.source AND st.stop_id = s.stop_id
+  WHERE trip_id = trip_id_param
+  ORDER BY stop_sequence;
+
+SELECT st.* FROM stop_times WHERE trip_id = trip_id_param;
+
+SELECT st.*, s.stop_name FROM stop_times st JOIN stops s ON st.source = s.source AND st.stop_id = s.stop_id WHERE trip_id = trip_id_param order by stop_sequence;
+
+pivot route_trip_details(502) on source using sum(n_stops) group by service_id order by service_id desc;
+
+
+
+
+-- finding all the stop_codes related to a given stop_code?
+CREATE MACRO stop_codes_related_to_stop_code(stop_code_param) AS TABLE
+  WITH trips_at_stop AS (
+      SELECT DISTINCT trip_id
+      FROM stop_times
+      WHERE stop_code = stop_code_param::VARCHAR
+  ),
+  all_stops_for_trips AS (
+      SELECT DISTINCT st.stop_code
+      FROM stop_times st
+      JOIN trips_at_stop tas ON st.trip_id = tas.trip_id
+      WHERE st.stop_code != stop_code_param::VARCHAR
+  )
+  SELECT DISTINCT s.stop_code, s.stop_name
+  FROM all_stops_for_trips asft
+  JOIN stops s ON asft.stop_code = s.stop_code
+  ORDER BY s.stop_code;
+
+-- maaaaybe another version of the above? these are just hard to figure out independently lol
+CREATE MACRO stop_codes_related_to_stop_code_2(stop_code_param) AS TABLE
+  WITH trip_stops AS (
+    SELECT DISTINCT st.trip_id, st.stop_code, st.source
+    FROM stop_times st
+    WHERE st.stop_code = stop_code_param::VARCHAR
+),
+related_stops AS (
+    SELECT 
+        ts.source,
+        st.stop_code,
+        s.stop_name,
+        COUNT(*) as visit_count
+    FROM trip_stops ts
+    JOIN stop_times st ON ts.trip_id = st.trip_id AND ts.source = st.source
+    JOIN stops s ON st.stop_id = s.stop_id AND st.source = s.source
+    WHERE st.stop_code != stop_code_param::VARCHAR
+    GROUP BY ts.source, st.stop_code, s.stop_name
+)
+SELECT 
+    source,
+    stop_code,
+    stop_name,
+    visit_count,
+    RANK() OVER (PARTITION BY source ORDER BY visit_count DESC) as rank
+FROM related_stops
+ORDER BY source, visit_count DESC, stop_code
