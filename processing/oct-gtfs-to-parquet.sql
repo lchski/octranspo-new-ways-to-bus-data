@@ -77,20 +77,6 @@ UPDATE stop_times
       ELSE 'off_peak_night'
     END;
 
--- join trip ID and stop code from relevant tables
-ALTER TABLE stop_times ADD COLUMN service_id VARCHAR;
-ALTER TABLE stop_times ADD COLUMN stop_code VARCHAR;
-
-UPDATE stop_times
-	SET service_id = trips.service_id
-	FROM trips
-	WHERE stop_times.source = trips.source AND stop_times.trip_id = trips.trip_id;
-
-UPDATE stop_times
-	SET stop_code = stops.stop_code
-	FROM stops
-	WHERE stop_times.source = stops.source AND stop_times.stop_id = stops.stop_id;
-
 
 -- join in the better route detail data
 CREATE TEMPORARY TABLE temp_routes AS
@@ -107,6 +93,21 @@ WHERE
 
 DROP TABLE temp_routes;
 
+-- join in the corrected stop_code for stops with null stop_code
+CREATE TEMPORARY TABLE correction_stop_codes AS
+	FROM read_csv('data/corrections/stop_codes.csv');
+
+UPDATE stops
+SET
+	stop_code = correction_stop_codes.stop_code
+FROM correction_stop_codes
+WHERE
+	stops.stop_id = correction_stop_codes.stop_id
+	AND stops.source = correction_stop_codes.source
+	AND stops.stop_code IS NULL;
+
+DROP TABLE correction_stop_codes;
+
 -- standardize route IDs to enable comparison
 UPDATE trips
 	SET route_id = REGEXP_REPLACE(route_id, '-350$', '')
@@ -119,6 +120,21 @@ UPDATE trips
 -- fix occasional odd trip_headsign formatting
 UPDATE trips
 	set trip_headsign = TRIM(trip_headsign);
+
+
+-- join trip ID and stop code from relevant tables
+ALTER TABLE stop_times ADD COLUMN service_id VARCHAR;
+ALTER TABLE stop_times ADD COLUMN stop_code VARCHAR;
+
+UPDATE stop_times
+	SET service_id = trips.service_id
+	FROM trips
+	WHERE stop_times.source = trips.source AND stop_times.trip_id = trips.trip_id;
+
+UPDATE stop_times
+	SET stop_code = stops.stop_code
+	FROM stops
+	WHERE stop_times.source = stops.source AND stop_times.stop_id = stops.stop_id;
 
 -- filter down to just representative data
 --- JSON generated with: https://observablehq.com/d/fb22d192264eb8f6

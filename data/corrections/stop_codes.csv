@@ -1,47 +1,15 @@
 source,stop_id,stop_code,notes
-octranspo-gtfs,7370,LAYUP,layup for ABBEYHILL / A.Y. JACKSON H.S. (code 6941)
-octranspo-gtfs,7383,LAYUP,layup for ALTA VISTA / RIDGEMONT (code 8425)
-octranspo-gtfs,7737,LAYUP,layup for HERON / ST PATS H.S. (code 8359)
-nwtb,DT022,TEMP,temporary stop for #5 north of Elgin police station
-octranspo-gtfs,10456,TEMP,temporary stop for #5 north of Elgin police station
-nwtb,DT021,TEMP,ditto temp for #5
-octranspo-gtfs,10455,TEMP,ditto temp for #5
-octranspo-gtfs,10454,7662,only used for route 56 [goes in a slightly different direction so technically a different stop but close enough we'll round]
-octranspo-gtfs ,10314,LAYUP,layup for BELL H.S / NORTH (code 5302)
-octranspo-gtfs ,4971,LAYUP,layup for BROADVIEW / NOTRE DAME H.S. (code 0539)
-octranspo-gtfs ,987,LAYUP,layup for BROOKFIELD / FLANNERY (code 8913)
-octranspo-gtfs ,9807,LAYUP,layup for FERN CASEY / RENAUD (code 8136)
-octranspo-gtfs ,10442,LAYUP,layup for CEDARVIEW MIDDLE SCHOOL (two routes and two slightly different stops codes 0532 and 0538)
-octranspo-gtfs ,6085,LAYUP,end-of-route layup for #305 (previous stop 11 minutes earlier nothing in route planner or Google Maps)
-octranspo-gtfs ,2406,LAYUP,layup for CHESTERTON / OMER-DESLAURIERS (various routes code 6001)
-octranspo-gtfs,9132,LAYUP,layup for HILLCREST HIGH SCHOOL (code 0096) [kinda... Hillcrest is actually the layup but we'll let it stay because it already has a code and we're not doing duration math with this data]
-nwtb,AJ500,LAYUP,ditto oct-9132 but for CANTERBURY / HARDING (code 7277)
-octranspo-gtfs,4043,3013,this is an "off only" so use code for DOMINION station
-nwtb,NH921,3013,this is an "off only" so use code for DOMINION station
-octranspo-gtfs ,7386,LAYUP,layup for DONALD / TELFORD (code 3578)
-octranspo-gtfs ,10283,LAYUP,layup for KATIMAVIK / MCGIBBON (code 0452)
-octranspo-gtfs ,10236,LAYUP,layup for JASMINE / OGILVIE (code 8656)
-octranspo-gtfs ,1605,LAYUP,layup for JEANNE D'ARC / BILBERRY (code 7914)
-octranspo-gtfs ,2594,3022,this is an R1 / truncated 16 so use code for LEES station
-octranspo-gtfs ,7382,LAYUP,layup for LONGFIELD - DAVIDSON HEIGHTS H.S. (code 0689) MOST OF THE TIME -- there are a few trips where it is maybe the end of a route; we'll just simplify and set those aside
-octranspo-gtfs ,10229,LAYUP,layup for LOUIS RIEL H.S (code 0098) MOST OF THE TIME -- same above
-octranspo-gtfs ,2599,LAYUP,layup for MAIN / OBLATS (code 6809) [Immaculata]
-octranspo-gtfs ,4611,LAYUP,layup for VALIN / CHARLEMAGNE (code 8933)
-octranspo-gtfs ,6897    ,LAYUP,layup for OGILVIE / KENDER (code 0550)
-octranspo-gtfs ,1632    ,LAYUP,layup for ORLÉANS / CAIRINE WILSON H.S. (code 0790)
-octranspo-gtfs ,9884    ,7941,this is an odd trip that seems to run through the stop FORTUNE / ORLÉANS (same name but reversed order) so we use that code
-octranspo-gtfs ,10285   ,LAYUP,layup for PIERRE-DE-BLOIS (code 0824)
-octranspo-gtfs ,10284   ,LAYUP,layup for PIERRE-DE-BLOIS (code 0825)
-octranspo-gtfs ,6086    ,PRINCE OF WALES / CENTURY         ,45.192563 ,-75.725032 ,
-octranspo-gtfs ,10012   ,PROMENADE / TERRASSES #2          ,45.424986 ,-75.721203 ,
-nwtb           ,CK211   ,PROMENADE / TERRASSES #2          ,           ,
-octranspo-gtfs ,9659    ,RICHARDSON / ALL SAINTS H.S.      ,45.322716 ,-75.925353 ,
-nwtb           ,DT051   ,RING ROAD                         ,           ,
-octranspo-gtfs ,10457   ,RING ROAD                         ,45.399564 ,-75.651254 ,
-octranspo-gtfs ,8043    ,SAMUEL GENEST                     ,45.442178 ,-75.62867  ,
-octranspo-gtfs ,9573    ,SMYTH / FRANCO-CITÉ               ,45.399925 ,-75.64151  ,
-octranspo-gtfs ,10029   ,ST-PAUL H.S                       ,45.340997 ,-75.792116 ,
-octranspo-gtfs ,10377   ,WESTBORO OFF ONLY                 ,45.395739 ,-75.753067 ,
-nwtb           ,NC941   ,WESTBORO OFF ONLY                 ,           ,
-
-
+nwtb,AJ500,8498,DAUPHIN / TWEED per Street View as of 2020 (no collisions in database)
+octranspo-legacy-gtfs,AJ500,8498,DAUPHIN / TWEED per Street View (no collisions in database)
+nwtb,CK211,5718,PROMENADE / TERRASSES #2 similar to PROMENADE / TERRASSES DE LA CHAUDIÈRE
+octranspo-legacy-gtfs,DT017,6843,BANK / GLEBE per Street View as of 2023 (collides with same name in database)
+nwtb,DT021,TMP1,CATHERINE / METCALFE temp for route 5
+octranspo-legacy-gtfs,DT021,TMP1,CATHERINE / METCALFE temp for route 5
+nwtb,DT022,TMP2,ARGYLE / METCALFE temp for route 5
+octranspo-legacy-gtfs,DT022,TMP2,ARGYLE / METCALFE temp for route 5
+nwtb,DT051,7072,RING ROAD close enough to CHEO HOSPITAL stops per Street View
+octranspo-legacy-gtfs,DT051,7072,RING ROAD close enough to CHEO HOSPITAL stops per Street View
+nwtb,NC941,3012,WESTBORO OFF ONLY "off only" so use code for WESTBORO station
+octranspo-legacy-gtfs,NC941,3012,WESTBORO OFF ONLY "off only" so use code for WESTBORO station
+nwtb,NH921,3013,DOMINION STN OFF ONLY "off only" so use code for DOMINION station
+octranspo-legacy-gtfs,NH921,3013,DOMINION STN OFF ONLY "off only" so use code for DOMINION station
