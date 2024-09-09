@@ -136,13 +136,13 @@ UPDATE stop_times
 	FROM stops
 	WHERE stop_times.source = stops.source AND stop_times.stop_id = stops.stop_id;
 
+
+
 -- filter down to just representative data
 --- JSON generated with: https://observablehq.com/d/fb22d192264eb8f6
 ALTER TABLE trips ADD COLUMN service_id_original VARCHAR;
 UPDATE trips
 	SET service_id_original = service_id;
-
-
 
 CREATE TEMP TABLE gtfs_representative_services AS
     SELECT *
@@ -170,7 +170,7 @@ CREATE TABLE stop_times_unused AS
 		service_id IN (SELECT service_id FROM gtfs_representative_services)
 	);
 
-
+--- remove the backed-up entries
 DELETE FROM trips
 WHERE NOT (
     source = 'nwtb'
@@ -226,12 +226,9 @@ WHERE (
 )
 
 -- TODO:
-	-- stops: sort out blank stop codes
 	-- stops: dedupe stops / create a standard set of IDs and codes, to draw from GTFS lat/lng
 	-- stops, stop_times: condense multi-platform/entry stops into a single one (multiple stop_id per stop_code likely best indicator) [based on which has the most stop_times?]
 	-- ? stops: pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
-	-- trips: convert route_id for nwtb data to move the direction (currently embedded in route_id) into direction_id
-	-- trips: (related to previous) bring trip_headsign in from source HTML / JSON
 	-- all: drop columns that aren't used in analysis before exporting
 	-- likely just for viz? filter out R1?
 
