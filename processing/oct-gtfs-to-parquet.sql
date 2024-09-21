@@ -95,7 +95,7 @@ DROP TABLE temp_routes;
 
 -- join in the corrected stop_code for stops with null stop_code
 CREATE TEMPORARY TABLE correction_stop_codes AS
-	FROM read_csv('data/corrections/stop_codes.csv');
+	FROM read_csv('data/corrections/null_stop_codes.csv');
 
 UPDATE stops
 SET
