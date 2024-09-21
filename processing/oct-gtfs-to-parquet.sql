@@ -198,6 +198,68 @@ UPDATE stop_times
 
 
 
+-- NORMALIZING
+
+--- normalize stops to draw from stop_code, not stop_id
+CREATE TEMP TABLE stop_ids_normalized AS (
+  SELECT source, stop_code, stop_id as stop_id_normalized FROM (
+      WITH stop_counts AS (
+      select source, stop_id, count(*) as n_stops from stop_times group by all
+    )
+      SELECT
+        s.source,
+        s.stop_code,
+        s.stop_id,
+        sc.n_stops,
+        ROW_NUMBER() OVER (PARTITION BY s.source, s.stop_code ORDER BY sc.n_stops DESC) AS n_stops_rank
+      FROM stops s
+      JOIN stop_counts sc ON s.source = sc.source AND s.stop_id = sc.stop_id
+  )
+    WHERE n_stops_rank = 1
+  );
+
+CREATE TEMP TABLE stops_normalized_tmp AS (
+	SELECT
+		s.source,
+		s.stop_code,
+		s.stop_id,
+		s.stop_name,
+		s.stop_lat,
+		s.stop_lon,
+		s_ids.stop_id_normalized
+	FROM stops s
+	JOIN stop_ids_normalized s_ids ON
+		s.source = s_ids.source AND
+		s.stop_code = s_ids.stop_code
+	);
+
+ALTER TABLE stops_normalized_tmp ADD COLUMN stop_name_normalized VARCHAR;
+ALTER TABLE stops_normalized_tmp ADD COLUMN stop_lat_normalized DOUBLE;
+ALTER TABLE stops_normalized_tmp ADD COLUMN stop_lon_normalized DOUBLE;
+
+UPDATE stops_normalized_tmp sn
+	SET
+		stop_name_normalized = s.stop_name,
+		stop_lat_normalized = s.stop_lat,
+		stop_lon_normalized = s.stop_lon
+	FROM stops s
+	WHERE
+		sn.source = s.source AND
+		sn.stop_id_normalized = s.stop_id;
+
+CREATE TABLE stops_normalized AS (
+	SELECT DISTINCT
+		source,
+		stop_code,
+		stop_id_normalized,
+		stop_name_normalized,
+		stop_lat_normalized,
+		stop_lon_normalized
+	FROM stops_normalized_tmp
+);
+
+DROP TABLE stop_ids_normalized;
+DROP TABLE stops_normalized_tmp;
 
 
 -- CLEANING

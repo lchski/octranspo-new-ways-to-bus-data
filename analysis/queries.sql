@@ -359,3 +359,134 @@ SELECT
     RANK() OVER (PARTITION BY source ORDER BY visit_count DESC) as rank
 FROM related_stops
 ORDER BY source, visit_count DESC, stop_code
+
+
+
+
+WITH stop_times_count AS (
+    SELECT source, stop_code, COUNT(*) AS n
+    FROM stop_times
+    GROUP BY source, stop_code
+    ORDER BY n DESC
+),
+stop_names_ranked AS (
+    SELECT 
+        st.source,
+        st.stop_code,
+        s.stop_name,
+        s.stop_lat,
+        s.stop_lon,
+        COUNT(*) AS stop_count,
+        ROW_NUMBER() OVER (PARTITION BY st.source, st.stop_code ORDER BY COUNT(*) DESC) AS rn
+    FROM stop_times st
+    JOIN stops s ON st.source = s.source AND st.stop_id = s.stop_id
+    GROUP BY st.source, st.stop_code, s.stop_name, s.stop_lat, s.stop_lon
+)
+SELECT 
+    stc.source, 
+    stc.stop_code, 
+    snr.stop_name, 
+    snr.stop_lat,
+    snr.stop_lon
+FROM stop_times_count stc
+LEFT JOIN stop_names_ranked snr ON stc.source = snr.source 
+    AND stc.stop_code = snr.stop_code
+    AND snr.rn = 1
+ORDER BY stc.n DESC;
+
+
+WITH stop_times_count AS (
+    SELECT source, stop_code, COUNT(*) AS n
+    FROM stop_times
+    GROUP BY source, stop_code
+    ORDER BY n DESC
+),
+stop_names_ranked AS (
+    SELECT 
+        st.source,
+        st.stop_code,
+        s.stop_name,
+        s.stop_lat,
+        s.stop_lon,
+        COUNT(*) AS stop_count,
+        ROW_NUMBER() OVER (PARTITION BY st.source, st.stop_code ORDER BY COUNT(*) DESC) AS rn
+    FROM stop_times st
+    JOIN stops s ON st.source = s.source AND st.stop_id = s.stop_id
+    GROUP BY st.source, st.stop_code, s.stop_name, s.stop_lat, s.stop_lon
+)
+SELECT 
+    stc.source, 
+    stc.stop_code, 
+    snr.stop_name, 
+    snr.stop_lat,
+    snr.stop_lon
+FROM stop_times_count stc
+LEFT JOIN stop_names_ranked snr ON stc.source = snr.source 
+    AND stc.stop_code = snr.stop_code
+    AND snr.rn = 1
+ORDER BY stc.n DESC;
+
+
+
+SELECT 
+        st.source,
+        st.stop_code,
+        s.stop_name,
+        COUNT(*) AS stop_count,
+        ROW_NUMBER() OVER (PARTITION BY st.source, st.stop_code ORDER BY COUNT(*) DESC) AS rn
+    FROM stop_times st
+    JOIN stops s ON st.source = s.source AND st.stop_id = s.stop_id
+    GROUP BY st.source, st.stop_code, s.stop_name
+
+
+-- stops with number of times a bus stops at each stop
+-- NB: will exclude stops with no stop_times: `FROM stops ANTI JOIN stop_times USING (stop_id);`
+WITH stop_counts AS (
+  select source, stop_id, count(*) as n_stops from stop_times group by all
+)
+  SELECT
+    s.stop_id,
+    s.stop_code,
+    s.stop_name,
+    s.stop_lat,
+    s.stop_lon,
+    s.source,
+    sc.n_stops,
+    ROW_NUMBER() OVER (PARTITION BY s.source, s.stop_code ORDER BY sc.n_stops DESC) AS n_stops_rank
+  FROM stops s
+  JOIN stop_counts sc ON s.source = sc.source AND s.stop_id = sc.stop_id;
+
+-- create a "stop_id_normalized" lookup table
+CREATE TEMP TABLE stop_ids_normalized AS (
+  SELECT source, stop_code, stop_id as stop_id_normalized FROM (
+      WITH stop_counts AS (
+      select source, stop_id, count(*) as n_stops from stop_times group by all
+    )
+      SELECT
+        s.source,
+        s.stop_code,
+        s.stop_id,
+        sc.n_stops,
+        ROW_NUMBER() OVER (PARTITION BY s.source, s.stop_code ORDER BY sc.n_stops DESC) AS n_stops_rank
+      FROM stops s
+      JOIN stop_counts sc ON s.source = sc.source AND s.stop_id = sc.stop_id
+  )
+    WHERE n_stops_rank = 1
+  );
+
+
+SELECT
+    s.source,
+    s.stop_id,
+    s_ids.stop_id_normalized,
+    s.stop_code,
+    s.stop_name,
+    s.stop_lat,
+    s.stop_lon
+  FROM stops s
+  JOIN stop_ids_normalized s_ids ON
+    s.source = s_ids.source AND
+    s.stop_code = s_ids.stop_code
+  ;
+
+
