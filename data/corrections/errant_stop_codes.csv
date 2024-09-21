@@ -4,3 +4,4 @@ nwtb,RR716,4642,3334,aligns with stop with same name elsewhere in dataset; align
 nwtb,RR704,4643,4640,aligns with stop with same name elsewhere in dataset; EARL ARMSTRONG seems correct (or close enough)
 nwtb,WK382,6636,6632,aligns with stop with same name elsewhere in dataset; SOMERSET seems correct
 nwtb,WM560,9056,9057,aligns with stop with same name elsewhere in dataset
+nwtb,WR163,5903,ERR1,unclear what the stop code should be; seems new but don't want to assign to a nearby one and lose the visibility
