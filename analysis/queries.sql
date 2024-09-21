@@ -490,3 +490,20 @@ SELECT
   ;
 
 
+
+COPY (WITH platform_counts AS (select source, stop_code, count(*) as n_platforms from stops group by all)
+  SELECT
+    s.source,
+    s.stop_id,
+    s.stop_code,
+    s.stop_name,
+    s.stop_lat,
+    s.stop_lon,
+    pcs.n_platforms
+  FROM stops s
+  JOIN platform_counts pcs ON
+    s.source = pcs.source AND
+    s.stop_code = pcs.stop_code
+  WHERE n_platforms > 1
+  ORDER BY s.stop_code, s.source, s.stop_name)
+  TO 'data/out/multi-platform-stops.csv';

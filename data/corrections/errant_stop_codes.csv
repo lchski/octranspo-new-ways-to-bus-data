@@ -1,2 +1,6 @@
 source,stop_id,stop_code_current,stop_code_corrected,notes
 nwtb,RF996,3034,3038,https://www.octranspo.com/en/our-services/stations-2/south-keys-01
+nwtb,RR716,4642,3334,aligns with stop with same name elsewhere in dataset; aligns with Google Maps
+nwtb,RR704,4643,4640,aligns with stop with same name elsewhere in dataset; EARL ARMSTRONG seems correct (or close enough)
+nwtb,WK382,6636,6632,aligns with stop with same name elsewhere in dataset; SOMERSET seems correct
+nwtb,WM560,9056,9057,aligns with stop with same name elsewhere in dataset
