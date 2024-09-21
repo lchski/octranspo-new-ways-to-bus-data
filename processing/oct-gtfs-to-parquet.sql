@@ -110,7 +110,7 @@ DROP TABLE correction_null_stop_codes;
 
 -- join in the corrected stop_code for stops with incorrect stop_code
 CREATE TEMPORARY TABLE correction_errant_stop_codes AS
-	FROM read_csv('data/corrections/errant_stop_codes.csv');
+	FROM read_csv('data/corrections/errant_stop_codes.csv', all_varchar = true);
 
 UPDATE stops
 SET
