@@ -94,19 +94,34 @@ WHERE
 DROP TABLE temp_routes;
 
 -- join in the corrected stop_code for stops with null stop_code
-CREATE TEMPORARY TABLE correction_stop_codes AS
+CREATE TEMPORARY TABLE correction_null_stop_codes AS
 	FROM read_csv('data/corrections/null_stop_codes.csv');
 
 UPDATE stops
 SET
-	stop_code = correction_stop_codes.stop_code
-FROM correction_stop_codes
+	stop_code = correction_null_stop_codes.stop_code
+FROM correction_null_stop_codes
 WHERE
-	stops.stop_id = correction_stop_codes.stop_id
-	AND stops.source = correction_stop_codes.source
+	stops.stop_id = correction_null_stop_codes.stop_id
+	AND stops.source = correction_null_stop_codes.source
 	AND stops.stop_code IS NULL;
 
-DROP TABLE correction_stop_codes;
+DROP TABLE correction_null_stop_codes;
+
+-- join in the corrected stop_code for stops with incorrect stop_code
+CREATE TEMPORARY TABLE correction_errant_stop_codes AS
+	FROM read_csv('data/corrections/errant_stop_codes.csv');
+
+UPDATE stops
+SET
+	stop_code = correction_errant_stop_codes.stop_code_corrected
+FROM correction_errant_stop_codes
+WHERE
+	stops.stop_id = correction_errant_stop_codes.stop_id
+	AND stops.source = correction_errant_stop_codes.source
+	AND stops.stop_code = correction_errant_stop_codes.stop_code_current;
+
+DROP TABLE correction_errant_stop_codes;
 
 -- standardize route IDs to enable comparison
 UPDATE trips
