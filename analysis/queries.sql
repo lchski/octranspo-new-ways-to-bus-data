@@ -507,3 +507,25 @@ COPY (WITH platform_counts AS (select source, stop_code, count(*) as n_platforms
   WHERE n_platforms > 1
   ORDER BY s.stop_code, s.source, s.stop_name)
   TO 'data/out/multi-platform-stops.csv';
+
+
+FROM (PIVOT stops_normalized ON source USING first(stop_name_normalized) GROUP BY stop_code) WHERE nwtb != "octranspo-legacy-gtfs";
+
+
+COPY (
+  SELECT DISTINCT(stop_code) FROM (
+    select source, stop_code, count(*) as n_platforms from stops group by all having n_platforms > 1
+  )
+  ORDER BY stop_code
+) TO 'data/out/multi-platform-stop-codes.csv';
+
+FROM stops_normalized_tmp_distinct WHERE stop_code IN read_csv('data/out/multi-platform-stop-codes.csv')
+
+COPY (
+  SELECT
+    source, stop_code, stop_id_normalized, stop_name_normalized, '' AS stop_name_corrected
+  FROM stops_normalized_tmp_distinct
+  WHERE
+    stop_code IN (FROM read_csv('data/out/multi-platform-stop-codes.csv'))
+  ORDER BY stop_code, source
+) TO 'data/corrections/raw-multiplatform_stop_names.csv';

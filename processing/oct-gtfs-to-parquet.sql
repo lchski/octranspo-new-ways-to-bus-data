@@ -329,6 +329,16 @@ UPDATE stops_normalized_tmp_distinct sn
 		sn.stop_id_normalized = stops_entire.stop_id AND
 		contains(sn.stop_code, 'ERR');
 
+--- fix stop names for multiplatform stops
+UPDATE stops_normalized_tmp_distinct sn
+	SET
+		stop_name_normalized = correction_multiplatform_stops.stop_name_corrected
+	FROM read_csv('data/corrections/multiplatform_stop_names.csv', all_varchar = true) correction_multiplatform_stops
+	WHERE
+		sn.source = correction_multiplatform_stops.source AND
+		sn.stop_code = correction_multiplatform_stops.stop_code AND
+		sn.stop_id_normalized = correction_multiplatform_stops.stop_id_normalized AND
+		sn.stop_name_normalized = correction_multiplatform_stops.stop_name_normalized;
 
 -- ! NB: still TODO, merging stops into one?
 CREATE TABLE stops_normalized AS (
