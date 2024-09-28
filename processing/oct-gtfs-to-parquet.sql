@@ -277,18 +277,6 @@ DROP TABLE stop_ids_normalized;
 DROP TABLE stops_normalized_tmp;
 
 --- pull stop_lat and stop_lon from OCT-legacy entries for the NWTB entries
-CREATE TEMP TABLE stops_normalized_tmp_oct_legacy AS (
-	SELECT *
-	FROM stops_normalized_tmp_distinct
-	WHERE source = 'octranspo-legacy-gtfs'
-);
-
-CREATE TEMP TABLE stops_normalized_tmp_nwtb AS (
-	SELECT *
-	FROM stops_normalized_tmp_distinct
-	WHERE source = 'nwtb'
-);
-
 UPDATE stops_normalized_tmp_distinct sn
 	SET
 		stop_lat_normalized = sn_oct.stop_lat_normalized,
