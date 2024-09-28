@@ -380,8 +380,6 @@ WHERE (
 )
 
 -- TODO:
-	-- stops: dedupe stops / create a standard set of IDs and codes, to draw from GTFS lat/lng
-	-- stops, stop_times: condense multi-platform/entry stops into a single one (multiple stop_id per stop_code likely best indicator) [based on which has the most stop_times?]
 	-- ? stops: pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
 	-- all: drop columns that aren't used in analysis before exporting
 	-- likely just for viz? filter out R1?
