@@ -341,9 +341,18 @@ UPDATE stops_normalized_tmp_distinct sn
 		sn.stop_name_normalized = correction_multiplatform_stops.stop_name_normalized;
 
 -- ! NB: still TODO, merging stops into one?
+-- CREATE TABLE stops_normalized AS (
+-- 	FROM stops_normalized_tmp_distinct
+-- );
+
 CREATE TABLE stops_normalized AS (
+	SELECT DISTINCT
+		stop_code, stop_id_normalized, stop_name_normalized, stop_lat_normalized, stop_lon_normalized
 	FROM stops_normalized_tmp_distinct
+	ORDER BY stop_code
 );
+
+DROP TABLE stops_normalized_tmp_distinct;
 
 -- CLEANING
 --- remove stop / stop times associated with a set of "auto-generated" trips
