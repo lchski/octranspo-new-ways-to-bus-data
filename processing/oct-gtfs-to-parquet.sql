@@ -262,7 +262,7 @@ UPDATE stops_normalized_tmp sn
 		sn.source = s.source AND
 		sn.stop_id_normalized = s.stop_id;
 
-CREATE TABLE stops_normalized AS (
+CREATE TEMP TABLE stops_normalized_tmp_distinct AS (
 	SELECT DISTINCT
 		source,
 		stop_code,
@@ -276,6 +276,64 @@ CREATE TABLE stops_normalized AS (
 DROP TABLE stop_ids_normalized;
 DROP TABLE stops_normalized_tmp;
 
+--- pull stop_lat and stop_lon from OCT-legacy entries for the NWTB entries
+CREATE TEMP TABLE stops_normalized_tmp_oct_legacy AS (
+	SELECT *
+	FROM stops_normalized_tmp_distinct
+	WHERE source = 'octranspo-legacy-gtfs'
+);
+
+CREATE TEMP TABLE stops_normalized_tmp_nwtb AS (
+	SELECT *
+	FROM stops_normalized_tmp_distinct
+	WHERE source = 'nwtb'
+);
+
+UPDATE stops_normalized_tmp_distinct sn
+	SET
+		stop_lat_normalized = sn_oct.stop_lat_normalized,
+		stop_lon_normalized = sn_oct.stop_lon_normalized
+	FROM (
+		SELECT * FROM stops_normalized_tmp_distinct
+		WHERE source = 'octranspo-legacy-gtfs'
+	) sn_oct
+	WHERE
+		sn.source = 'nwtb' AND
+		sn.stop_lat_normalized IS NULL AND
+		sn.stop_lon_normalized IS NULL AND
+		sn.stop_code = sn_oct.stop_code;
+
+--- pull from the full stops file for any missing stop details (NB: uses stop_code AND stop_id to ensure no duplicates)
+UPDATE stops_normalized_tmp_distinct sn
+	SET
+		stop_lat_normalized = stops_entire.stop_lat,
+		stop_lon_normalized = stops_entire.stop_lon
+	FROM read_csv('data/out/gtfs-stops-entire.csv') stops_entire
+	WHERE
+		sn.source = 'nwtb' AND
+		sn.stop_lat_normalized IS NULL AND
+		sn.stop_lon_normalized IS NULL AND
+		sn.stop_id_normalized = stops_entire.stop_id AND
+		sn.stop_code = stops_entire.stop_code;
+
+--- a final pass using the full stops file, only for errant stop codes (when test ran, this affected one stop, which we'd given a stop code of `ERR1`)
+UPDATE stops_normalized_tmp_distinct sn
+	SET
+		stop_lat_normalized = stops_entire.stop_lat,
+		stop_lon_normalized = stops_entire.stop_lon
+	FROM read_csv('data/out/gtfs-stops-entire.csv') stops_entire
+	WHERE
+		sn.source = 'nwtb' AND
+		sn.stop_lat_normalized IS NULL AND
+		sn.stop_lon_normalized IS NULL AND
+		sn.stop_id_normalized = stops_entire.stop_id AND
+		contains(sn.stop_code, 'ERR');
+
+
+-- ! NB: still TODO, merging stops into one?
+CREATE TABLE stops_normalized AS (
+	FROM stops_normalized_tmp_distinct
+);
 
 -- CLEANING
 --- remove stop / stop times associated with a set of "auto-generated" trips
