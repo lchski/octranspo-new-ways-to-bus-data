@@ -375,12 +375,11 @@ WHERE (
 )
 
 -- TODO:
-	-- ? stops: pre-compute stop_times per stop (grouped by source, service, service_window) [we can also do this in-browser, but may be faster to just have a pre-computed lookup table]
-	-- all: drop columns that aren't used in analysis before exporting
 	-- likely just for viz? filter out R1?
 
 EXPORT DATABASE 'data/out/oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
+COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'parquet', COMPRESSION 'uncompressed');
 COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
 COPY (
@@ -388,7 +387,7 @@ COPY (
 		source, service_id, service_window, stop_code, count(*) as n_stop_times
 	FROM stop_times
 	GROUP BY ALL
-	ORDER BY source, service_id, service_window, stop_code;
+	ORDER BY source, service_id, service_window, stop_code
 ) TO 'data/out/for-web/stop_times_by_stop.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
 
