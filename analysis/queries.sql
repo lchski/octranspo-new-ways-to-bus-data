@@ -535,3 +535,94 @@ SELECT
   FROM stop_times
   GROUP BY ALL
   ORDER BY source, service_id, service_window, stop_code;
+
+PIVOT (
+  SELECT source, stop_code, SUM(n_stop_times) as n_stop_times
+      FROM web_stop_times_by_stop
+      WHERE
+        list_contains(['peak_afternoon'], service_window) AND
+        list_contains(['weekday', 'saturday'], service_id)
+      GROUP BY stop_code, source ORDER BY stop_code
+  )
+  ON source
+  USING SUM(n_stop_times)
+;
+
+PIVOT (
+  SELECT source, stop_code, n_stop_times
+      FROM web_stop_times_by_stop
+      WHERE
+        list_contains(['peak_afternoon'], service_window) AND
+        list_contains(['weekday', 'saturday'], service_id)
+  )
+  ON source
+  USING SUM(n_stop_times)
+;
+
+
+SELECT * REPLACE (ifnull("current", 0) as "n_stops_current", ifnull("new", 0) as "n_stops_new") FROM (
+  WITH stop_frequencies AS (
+    PIVOT (
+      FROM web_stop_times_by_stop
+      WHERE
+        list_contains(['peak_afternoon'], service_window) AND
+        list_contains(['weekday', 'saturday'], service_id)
+    )
+    ON source
+    USING SUM(n_stop_times)
+    GROUP BY stop_code
+  )
+  FROM stops_normalized s
+  LEFT JOIN stop_frequencies sf USING(stop_code)
+)
+;
+
+--- same as above, rewritten by Claude to not use PIVOT because it was throwing errors in JS
+WITH stop_frequencies AS (
+  SELECT 
+    stop_code,
+    SUM(CASE WHEN source = 'current' THEN n_stop_times ELSE 0 END)::INTEGER AS current,
+    SUM(CASE WHEN source = 'new' THEN n_stop_times ELSE 0 END)::INTEGER AS new
+  FROM web_stop_times_by_stop
+  WHERE 
+    list_contains(['peak_afternoon'], service_window) AND
+    list_contains(['weekday', 'saturday'], service_id)
+  GROUP BY stop_code
+)
+SELECT 
+  s.*,
+  COALESCE(sf.current, 0) AS n_stops_current,
+  COALESCE(sf.new, 0) AS n_stops_new
+FROM stops_normalized s
+LEFT JOIN stop_frequencies sf USING(stop_code);
+
+
+WITH stop_frequencies AS (
+  SELECT stop_code, ifnull("current", 0) as "current", ifnull("new", 0) as "new"
+  FROM (
+    PIVOT (
+      FROM web_stop_times_by_stop
+      WHERE
+        list_contains(['peak_afternoon'], service_window) AND
+        list_contains(['weekday', 'saturday'], service_id)
+    )
+    ON source
+    USING SUM(n_stop_times)
+    GROUP BY stop_code
+  )
+  )
+  FROM stops_normalized s
+  LEFT JOIN stop_frequencies sf USING(stop_code);
+
+SELECT stop_code, ifnull("current", 0) as "current", ifnull("new", 0) as "new" FROM (PIVOT (
+    FROM web_stop_times_by_stop
+    WHERE
+      list_contains(['peak_afternoon'], service_window) AND
+      list_contains(['weekday', 'saturday'], service_id)
+  )
+  ON source
+  USING SUM(n_stop_times)
+  GROUP BY stop_code
+)
+;
+
