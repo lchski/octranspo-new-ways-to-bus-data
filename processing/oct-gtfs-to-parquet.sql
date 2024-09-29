@@ -338,17 +338,14 @@ UPDATE stops_normalized_tmp_distinct sn
 		stop_id_normalized = 'CF090' AND
 		stop_name_normalized = 'GLEBE / BANK';
 
--- ! NB: still TODO, merging stops into one?
--- CREATE TABLE stops_normalized AS (
--- 	FROM stops_normalized_tmp_distinct
--- );
-
 CREATE TABLE stops_normalized AS (
 	SELECT DISTINCT
 		stop_code, stop_name_normalized, stop_lat_normalized, stop_lon_normalized
 	FROM stops_normalized_tmp_distinct
 	ORDER BY stop_code
 );
+
+---- NB!!! QUALITY CONTROL! see #14, run query in #13 and make sure you get 0 results
 
 DROP TABLE stops_normalized_tmp_distinct;
 
