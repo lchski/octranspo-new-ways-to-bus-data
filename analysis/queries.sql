@@ -529,3 +529,9 @@ COPY (
     stop_code IN (FROM read_csv('data/out/multi-platform-stop-codes.csv'))
   ORDER BY stop_code, source
 ) TO 'data/corrections/raw-multiplatform_stop_names.csv';
+
+SELECT
+  source, service_id, service_window, stop_code, count(*) as n_stop_times
+  FROM stop_times
+  GROUP BY ALL
+  ORDER BY source, service_id, service_window, stop_code;

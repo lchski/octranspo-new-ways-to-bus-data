@@ -380,3 +380,15 @@ WHERE (
 	-- likely just for viz? filter out R1?
 
 EXPORT DATABASE 'data/out/oc_transpo_gtfs' (FORMAT 'parquet', COMPRESSION 'GZIP');
+
+COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
+
+COPY (
+	SELECT
+		source, service_id, service_window, stop_code, count(*) as n_stop_times
+	FROM stop_times
+	GROUP BY ALL
+	ORDER BY source, service_id, service_window, stop_code;
+) TO 'data/out/for-web/stop_times_by_stop.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
+
+
