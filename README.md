@@ -1,22 +1,39 @@
 ## Loading
 
-Requires `jq`. It’s good fun, I recommend it!
+Requires `jq`. It’s good fun, I recommend it! (also `json2csv`)
 
-`download-routes.sh`
+Remove the JSON files in data/routes directory, then:
 
-run `./1-generate-schedule-download-curls.sh > 2-download-schedules.sh` 
+`./0-download-routes.sh`
 
-run ```
-chmod+x 2-download-schedules.sh
+```
+rm 2-download-schedules.sh
+./1-generate-schedule-download-curls.sh > 2-download-schedules.sh
+```
+
+Remove all the JSON files in the data/schedules directory, then:
+
+```
+chmod +x 2-download-schedules.sh
 ./2-download-schedules.sh
+```
+
+Remove the JSON files in data/stops, then:
+
+```
+./3-download-stops.sh
 ```
 
 ## Processing
 
-`node processing/index.js`
+Generate the feeder JSON / CSV:
+```
+node processing/index.js
+node processing/routes-to-csv.js
+```
 
-`duckdb < processing/csv-to-parquet.sql`
-
+If you're brave, load it directly into 
+```
 
 ## Converting OCT GTFS to our GTFS subset
 
