@@ -328,6 +328,16 @@ UPDATE stops_normalized_tmp_distinct sn
 		sn.stop_id_normalized = correction_multiplatform_stops.stop_id_normalized AND
 		sn.stop_name_normalized = correction_multiplatform_stops.stop_name_normalized;
 
+--- fix one errant stop name that messed up deduplication (see #13), manually (lol)
+UPDATE stops_normalized_tmp_distinct sn
+	SET
+		stop_name_normalized = 'BANK / GLEBE'
+	WHERE
+		source = 'nwtb' AND
+		stop_code = '6843' AND
+		stop_id_normalized = 'CF090' AND
+		stop_name_normalized = 'GLEBE / BANK';
+
 -- ! NB: still TODO, merging stops into one?
 -- CREATE TABLE stops_normalized AS (
 -- 	FROM stops_normalized_tmp_distinct
@@ -335,7 +345,7 @@ UPDATE stops_normalized_tmp_distinct sn
 
 CREATE TABLE stops_normalized AS (
 	SELECT DISTINCT
-		stop_code, stop_id_normalized, stop_name_normalized, stop_lat_normalized, stop_lon_normalized
+		stop_code, stop_name_normalized, stop_lat_normalized, stop_lon_normalized
 	FROM stops_normalized_tmp_distinct
 	ORDER BY stop_code
 );
