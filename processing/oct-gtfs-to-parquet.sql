@@ -4,13 +4,13 @@
 
 CREATE TABLE stops as
 	SELECT stop_id, stop_code, stop_name, stop_lat, stop_lon
-	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-08-26-google_transit/stops.txt");
+	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-google_transit/stops.txt");
 CREATE TABLE stop_times as
 	SELECT trip_id, arrival_time, stop_id, stop_sequence
-	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-08-26-google_transit/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
+	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-google_transit/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
 CREATE TABLE trips as
 	SELECT route_id, service_id, trip_id, trip_headsign, direction_id -- trip_headsign probably not useful? but maybe if we're trying to join / infer directions later
-	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-08-26-google_transit/trips.txt");
+	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-google_transit/trips.txt");
 
 -- add OCT GTFS as source
 ALTER TABLE stops ADD COLUMN source VARCHAR DEFAULT 'octranspo-legacy-gtfs';
@@ -106,6 +106,8 @@ WHERE
 	AND stops.source = correction_null_stop_codes.source
 	AND stops.stop_code IS NULL;
 
+---- QC: check it worked with: `from stops where stop_code is null;`
+
 DROP TABLE correction_null_stop_codes;
 
 -- join in the corrected stop_code for stops with incorrect stop_code
@@ -161,7 +163,7 @@ UPDATE trips
 
 CREATE TEMP TABLE gtfs_representative_services AS
     SELECT *
-    FROM read_csv("data/source/octranspo-legacy-gtfs/2024-08-26-legacy-gtfs_representative_services.csv");
+    FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-gtfs_representative_services.csv");
 
 UPDATE gtfs_representative_services
 	SET day_of_week = 'weekday'
@@ -386,10 +388,10 @@ COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'pa
 CREATE TEMP TABLE web_stop_times_by_stop AS (
 	SELECT
 		source, service_id, service_window, stop_code, count(*) as n_stop_times
-	FROM stop_times
+	FROM (SELECT DISTINCT(*) FROM stop_times)
 	GROUP BY ALL
 	ORDER BY source, service_id, service_window, stop_code
-)
+);
 
 UPDATE web_stop_times_by_stop
 	SET source = 'current'
@@ -401,4 +403,4 @@ UPDATE web_stop_times_by_stop
 
 COPY web_stop_times_by_stop TO 'data/out/for-web/stop_times_by_stop.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
-
+DROP TABLE web_stop_times_by_stop;

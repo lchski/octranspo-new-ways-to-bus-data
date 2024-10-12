@@ -32,7 +32,9 @@ node processing/index.js
 node processing/routes-to-csv.js
 ```
 
-If you're brave, load it directly into 
+If you're brave, load it directly into DuckDB:
+```
+
 ```
 
 ## Converting OCT GTFS to our GTFS subset
