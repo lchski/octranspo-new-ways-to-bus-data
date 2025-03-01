@@ -4,13 +4,13 @@
 
 CREATE TABLE stops as
 	SELECT stop_id, stop_code, stop_name, stop_lat, stop_lon
-	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-google_transit/stops.txt");
+	FROM read_csv("data/source/octranspo-legacy-gtfs/2025-03-01-google_transit/stops.txt");
 CREATE TABLE stop_times as
 	SELECT trip_id, arrival_time, stop_id, stop_sequence
-	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-google_transit/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
+	FROM read_csv("data/source/octranspo-legacy-gtfs/2025-03-01-google_transit/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
 CREATE TABLE trips as
 	SELECT route_id, service_id, trip_id, trip_headsign, direction_id -- trip_headsign probably not useful? but maybe if we're trying to join / infer directions later
-	FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-google_transit/trips.txt");
+	FROM read_csv("data/source/octranspo-legacy-gtfs/2025-03-01-google_transit/trips.txt");
 
 -- add OCT GTFS as source
 ALTER TABLE stops ADD COLUMN source VARCHAR DEFAULT 'octranspo-legacy-gtfs';
@@ -163,7 +163,7 @@ UPDATE trips
 
 CREATE TEMP TABLE gtfs_representative_services AS
     SELECT *
-    FROM read_csv("data/source/octranspo-legacy-gtfs/2024-09-29-gtfs_representative_services.csv");
+    FROM read_csv("data/source/octranspo-legacy-gtfs/2025-03-01-gtfs_representative_services.csv");
 
 UPDATE gtfs_representative_services
 	SET day_of_week = 'weekday'
