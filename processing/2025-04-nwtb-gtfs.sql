@@ -54,7 +54,6 @@ CREATE TABLE service_ids_oi AS
     SELECT service_id, day_of_week, source
     FROM service_ids_oi_raw;
 
--- ..."upgrade" these with day_of_week and source, drop the date column, join these into service_ids_oi_raw, filter them out if no longer needed (exception_type 1 or 2, TBC), then drop the exception_type column
 CREATE TEMPORARY TABLE calendar_dates_oi AS
     SELECT *
     FROM calendar_dates
@@ -84,8 +83,13 @@ INSERT INTO
 	service_ids_oi (service_id, day_of_week, source)
 	SELECT service_id, day_of_week, source FROM calendar_dates_oi WHERE exception_type = 1;
 
-SELECT sioi.*, cdoi.exception_type
-    FROM service_ids_oi sioi
-    LEFT JOIN calendar_dates_oi cdoi ON sioi.service_id = cdoi.service_id;
-
-
+SELECT DISTINCT
+    service_id, day_of_week, source
+    FROM (
+        SELECT sioi.*, cdoi.exception_type
+            FROM service_ids_oi sioi
+            LEFT JOIN calendar_dates_oi cdoi ON sioi.service_id = cdoi.service_id
+    )
+    WHERE
+        exception_type != 2 OR exception_type IS null
+    ORDER BY source, day_of_week, service_id;
