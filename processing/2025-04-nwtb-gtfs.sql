@@ -15,6 +15,8 @@ CREATE TABLE trips as
 	SELECT route_id, service_id, trip_id, trip_headsign, direction_id -- trip_headsign probably not useful? but maybe if we're trying to join / infer directions later
 	FROM read_csv("data/source/octranspo-modern-gtfs/2025-04-18-GTFSExport/trips.txt");
 
+
+
 -- Dates (Fri/Sat/Sun)
 -- - Legacy: 2025-04-11, 2025-04-12, 2025-04-13
 -- - NWTB: 2025-05-09, 2025-05-10, 2025-05-11
@@ -50,7 +52,7 @@ UPDATE service_ids_oi_raw
         ELSE 'nwtb'
     END;
 
-CREATE TABLE service_ids_oi AS
+CREATE TEMPORARY TABLE service_ids_oi_annotated AS
     SELECT service_id, day_of_week, source
     FROM service_ids_oi_raw;
 
@@ -80,16 +82,20 @@ UPDATE calendar_dates_oi
     END;
 
 INSERT INTO
-	service_ids_oi (service_id, day_of_week, source)
+	service_ids_oi_annotated (service_id, day_of_week, source)
 	SELECT service_id, day_of_week, source FROM calendar_dates_oi WHERE exception_type = 1;
 
-SELECT DISTINCT
-    service_id, day_of_week, source
-    FROM (
-        SELECT sioi.*, cdoi.exception_type
-            FROM service_ids_oi sioi
-            LEFT JOIN calendar_dates_oi cdoi ON sioi.service_id = cdoi.service_id
-    )
-    WHERE
-        exception_type != 2 OR exception_type IS null
-    ORDER BY source, day_of_week, service_id;
+CREATE TABLE service_ids_oi AS
+    (
+        SELECT DISTINCT service_id, day_of_week, source
+        FROM (
+            SELECT sioia.*, cdoi.exception_type
+                FROM service_ids_oi_annotated sioia
+                LEFT JOIN calendar_dates_oi cdoi ON sioia.service_id = cdoi.service_id
+        )
+        WHERE
+            exception_type != 2 OR
+            exception_type IS null
+        ORDER BY source, day_of_week, service_id
+    );
+
