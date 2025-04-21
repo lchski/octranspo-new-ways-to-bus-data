@@ -195,3 +195,5 @@ CREATE TABLE stop_times_unused AS
 ---- !! this removes ~80% of stop_times – probably makes sense, as we're cutting 4/5 of the days of the week, but this suggests Saturday/Sunday are much less service...
 DELETE FROM stop_times
     WHERE service_id IS NULL;
+
+
