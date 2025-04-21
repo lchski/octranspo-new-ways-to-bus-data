@@ -11,9 +11,6 @@ CREATE TABLE stops as
 CREATE TABLE stop_times as
 	SELECT trip_id, arrival_time, departure_time, stop_id, stop_sequence, pickup_type, drop_off_type -- may not need departure_time, pickup_type, drop_off_type
 	FROM read_csv("data/source/octranspo-modern-gtfs/2025-04-18-GTFSExport/stop_times.txt", types={'trip_id': 'VARCHAR', 'stop_id': 'VARCHAR'});
-CREATE TABLE trips as
-	SELECT route_id, service_id, trip_id, trip_headsign, direction_id -- trip_headsign probably not useful? but maybe if we're trying to join / infer directions later
-	FROM read_csv("data/source/octranspo-modern-gtfs/2025-04-18-GTFSExport/trips.txt");
 
 
 
@@ -99,6 +96,27 @@ CREATE TABLE service_ids_oi AS
         ORDER BY source, day_of_week, service_id
     );
 
+CREATE TEMPORARY TABLE trips_raw as
+	SELECT route_id, service_id, trip_id, trip_headsign, direction_id -- trip_headsign probably not useful? but maybe if we're trying to join / infer directions later
+	FROM read_csv("data/source/octranspo-modern-gtfs/2025-04-18-GTFSExport/trips.txt");
+
+CREATE TABLE trips AS
+    (
+        SELECT 
+            t.route_id,
+            sioi.day_of_week AS service_id,
+            t.trip_id,
+            t.trip_headsign,
+            t.direction_id,
+            sioi.source,
+            t.service_id AS service_id_original
+        FROM trips_raw t
+        LEFT JOIN service_ids_oi sioi
+        ON t.service_id = sioi.service_id
+        WHERE source IS NOT NULL
+    );
+
+
 ---
 -- add service windows
 ALTER TABLE stop_times ADD COLUMN arrival_time_frac DOUBLE; --- arrival_time_frac and service_window;
@@ -121,3 +139,39 @@ UPDATE stop_times
       WHEN arrival_time_frac >= 18.5 AND arrival_time_frac < 23 THEN 'off_peak_evening'
       ELSE 'off_peak_night'
     END;
+
+-- join in the corrected stop_code for stops with null stop_code
+CREATE TEMPORARY TABLE correction_null_stop_codes AS
+	FROM read_csv('data/corrections/null_stop_codes.csv');
+
+UPDATE stops
+    SET
+        stop_code = correction_null_stop_codes.stop_code
+    FROM correction_null_stop_codes
+    WHERE
+        stops.stop_id = correction_null_stop_codes.stop_id
+        AND correction_null_stop_codes.source = 'nwtb-2025-04'
+        AND stops.stop_code IS NULL;
+
+---- QC: check it worked with: `from stops where stop_code is null;`
+
+DROP TABLE correction_null_stop_codes;
+
+
+-- TODO: correct errant stop_code
+
+    -- TKTK...
+
+-- join trip ID and stop code from relevant tables
+ALTER TABLE stop_times ADD COLUMN service_id VARCHAR;
+ALTER TABLE stop_times ADD COLUMN stop_code VARCHAR;
+
+UPDATE stop_times
+	SET service_id = trips.service_id
+	FROM trips
+	WHERE stop_times.trip_id = trips.trip_id;
+
+UPDATE stop_times
+	SET stop_code = stops.stop_code
+	FROM stops
+	WHERE stop_times.stop_id = stops.stop_id;

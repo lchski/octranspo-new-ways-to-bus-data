@@ -15,3 +15,11 @@ nwtb,NH921,3013,DOMINION STN OFF ONLY "off only" so use code for DOMINION statio
 octranspo-legacy-gtfs,NH921,3013,DOMINION STN OFF ONLY "off only" so use code for DOMINION station
 octranspo-legacy-gtfs,DT032,TMP3,Gatineau temp for routes 63 and 66
 octranspo-legacy-gtfs,DT033,TMP4,Gatineau temp for routes 63 and 66
+nwtb-2025-04,10012,5718,PROMENADE / TERRASSES #2 – per above
+nwtb-2025-04,10377,3012,WESTBORO OFF ONLY – per above
+nwtb-2025-04,10449,TMP3,LAVAL / LAURIER – per above (for DT032/DT033)
+nwtb-2025-04,10455,TMP1,CATHERINE / METCALFE – per above
+nwtb-2025-04,10456,TMP4,ELGIN / PARK – Elgin / Catherine or Elgin / Mcleod may correspond
+nwtb-2025-04,10457,7072,RING ROAD – per above
+nwtb-2025-04,10712,TMP4,DU PORTAGE / DE L' HÔTEL-DE-VILLE – per above (for DT032/DT033)
+nwtb-2025-04,4043,3013,DOMINION STN OFF ONLY – per above
