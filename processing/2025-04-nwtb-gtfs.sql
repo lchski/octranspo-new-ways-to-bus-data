@@ -99,3 +99,25 @@ CREATE TABLE service_ids_oi AS
         ORDER BY source, day_of_week, service_id
     );
 
+---
+-- add service windows
+ALTER TABLE stop_times ADD COLUMN arrival_time_frac DOUBLE; --- arrival_time_frac and service_window;
+ALTER TABLE stop_times ADD COLUMN service_window VARCHAR;
+
+UPDATE stop_times
+	SET arrival_time_frac = round(
+      add(
+        arrival_time[0:2]::Integer,
+        arrival_time[4:5]::Integer / 60
+      ), 2);
+
+-- service window times from: https://www.octranspo.com/en/our-services/bus-o-train-network/service-types/o-train-line-1#hoursOp
+UPDATE stop_times
+	SET service_window = CASE
+      WHEN arrival_time_frac >= 5 AND arrival_time_frac < 6.5 THEN 'off_peak_morning'
+      WHEN arrival_time_frac >= 6.5 AND arrival_time_frac < 9 THEN 'peak_morning'
+      WHEN arrival_time_frac >= 9 AND arrival_time_frac < 15 THEN 'off_peak_midday'
+      WHEN arrival_time_frac >= 15 AND arrival_time_frac < 18.5 THEN 'peak_afternoon'
+      WHEN arrival_time_frac >= 18.5 AND arrival_time_frac < 23 THEN 'off_peak_evening'
+      ELSE 'off_peak_night'
+    END;
