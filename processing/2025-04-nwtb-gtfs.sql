@@ -163,11 +163,14 @@ DROP TABLE correction_null_stop_codes;
     -- TKTK...
 
 -- join trip ID and stop code from relevant tables
+ALTER TABLE stop_times ADD COLUMN source VARCHAR;
 ALTER TABLE stop_times ADD COLUMN service_id VARCHAR;
 ALTER TABLE stop_times ADD COLUMN stop_code VARCHAR;
 
 UPDATE stop_times
-	SET service_id = trips.service_id
+	SET
+        source = trips.source,
+        service_id = trips.service_id
 	FROM trips
 	WHERE stop_times.trip_id = trips.trip_id;
 
