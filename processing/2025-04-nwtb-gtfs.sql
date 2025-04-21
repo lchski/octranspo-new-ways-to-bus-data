@@ -197,3 +197,90 @@ DELETE FROM stop_times
 	WHERE service_id IS NULL;
 
 
+
+
+
+
+-- NORMALIZING
+
+--- normalize stops to draw from stop_code, not stop_id
+---- TODO: this may be more htan's needed now that we have just one set of stops
+CREATE TEMPORARY TABLE stop_ids_normalized AS (
+	SELECT stop_code, stop_id as stop_id_normalized FROM (
+		WITH stop_counts AS (
+			SELECT stop_id, count(*) AS n_stops FROM stop_times GROUP BY all
+		)
+		SELECT
+			s.stop_code,
+			s.stop_id,
+			sc.n_stops,
+			ROW_NUMBER() OVER (PARTITION BY s.stop_code ORDER BY sc.n_stops DESC) AS n_stops_rank
+		FROM stops s
+		JOIN stop_counts sc ON s.stop_id = sc.stop_id
+	)
+	WHERE n_stops_rank = 1
+);
+
+CREATE TEMPORARY TABLE stops_normalized_tmp AS (
+	SELECT
+		s.stop_code,
+		s.stop_id,
+		s.stop_name,
+		s.stop_lat,
+		s.stop_lon,
+		s_ids.stop_id_normalized
+	FROM stops s
+	JOIN stop_ids_normalized s_ids ON
+		s.stop_code = s_ids.stop_code
+	);
+
+ALTER TABLE stops_normalized_tmp ADD COLUMN stop_name_normalized VARCHAR;
+ALTER TABLE stops_normalized_tmp ADD COLUMN stop_lat_normalized DOUBLE;
+ALTER TABLE stops_normalized_tmp ADD COLUMN stop_lon_normalized DOUBLE;
+
+UPDATE stops_normalized_tmp sn
+	SET
+		stop_name_normalized = s.stop_name,
+		stop_lat_normalized = s.stop_lat,
+		stop_lon_normalized = s.stop_lon
+	FROM stops s
+	WHERE
+		sn.stop_id_normalized = s.stop_id;
+
+CREATE TEMPORARY TABLE stops_normalized_tmp_distinct AS (
+	SELECT DISTINCT
+		stop_code,
+		stop_id_normalized,
+		stop_name_normalized,
+		stop_lat_normalized,
+		stop_lon_normalized
+	FROM stops_normalized_tmp
+);
+
+DROP TABLE stop_ids_normalized;
+DROP TABLE stops_normalized_tmp;
+
+--- fix stop names for multiplatform stops
+---- manually create the list of multiplatform stops based on stop codes and build a replacement list from that:
+---- COPY (SELECT 'nwtb-2025-04' AS source, stop_code, stop_id_normalized, stop_name_normalized, '' AS stop_name_corrected FROM (SELECT s.stop_code, sn.stop_id_normalized, sn.stop_name_normalized, s.n FROM (SELECT stop_code, COUNT(*) AS n FROM stops GROUP BY stop_code HAVING n > 1) s JOIN stops_normalized_tmp_distinct sn ON sn.stop_code = s.stop_code ORDER BY n DESC)) TO 'data/out/tmp-multiplatform-stops.csv';
+UPDATE stops_normalized_tmp_distinct sn
+	SET
+		stop_name_normalized = correction_multiplatform_stops.stop_name_corrected
+	FROM read_csv('data/corrections/multiplatform_stop_names.csv', all_varchar = true) correction_multiplatform_stops
+	WHERE
+		correction_multiplatform_stops.source = 'nwtb-2025-04' AND
+		sn.stop_code = correction_multiplatform_stops.stop_code AND
+		sn.stop_id_normalized = correction_multiplatform_stops.stop_id_normalized AND
+		sn.stop_name_normalized = correction_multiplatform_stops.stop_name_normalized;
+
+CREATE TABLE stops_normalized AS (
+	SELECT DISTINCT
+		stop_code, stop_name_normalized, stop_lat_normalized, stop_lon_normalized
+	FROM stops_normalized_tmp_distinct
+	ORDER BY stop_code
+);
+
+---- NB!!! QUALITY CONTROL! see #14, run query in #13 and make sure you get 0 results
+
+DROP TABLE stops_normalized_tmp_distinct;
+
