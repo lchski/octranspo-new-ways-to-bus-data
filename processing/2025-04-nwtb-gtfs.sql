@@ -178,3 +178,18 @@ UPDATE stop_times
 	SET stop_code = stops.stop_code
 	FROM stops
 	WHERE stop_times.stop_id = stops.stop_id;
+
+
+
+-- filter down to just representative data
+
+--- backup entries before deletion from main tables
+---- if you want to see the "original", run: `FROM trips UNION FROM trips_unused;` or the same for stop_times
+CREATE TABLE stop_times_unused AS
+	FROM stop_times
+	WHERE service_id IS NULL;
+
+--- remove the backed-up entries
+---- !! this removes ~80% of stop_times – probably makes sense, as we're cutting 4/5 of the days of the week, but this suggests Saturday/Sunday are much less service...
+DELETE FROM stop_times
+    WHERE service_id IS NULL;
