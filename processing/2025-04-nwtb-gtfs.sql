@@ -18,6 +18,8 @@ CREATE TABLE stop_times as
 -- - Legacy: 2025-04-11, 2025-04-12, 2025-04-13
 -- - NWTB: 2025-05-09, 2025-05-10, 2025-05-11
 
+---- TODO: maybe do this differently, so we can still keep the full set of trips, then separate into trips_unused as we used to—and, manually add back the few exceptional weekday trips for, e.g., school / shopping
+
 CREATE TEMPORARY TABLE service_ids_oi_raw AS
     SELECT service_id, friday, saturday, sunday, start_date, end_date
     FROM calendar
