@@ -160,9 +160,15 @@ UPDATE stops
 DROP TABLE correction_null_stop_codes;
 
 
--- TODO: correct errant stop_code
-
-	-- TKTK...
+-- correct errant stop_code
+UPDATE stops
+	SET
+		stop_code = correction_errant_stop_codes.stop_code_corrected
+	FROM read_csv('data/corrections/errant_stop_codes.csv', all_varchar = true) correction_errant_stop_codes
+	WHERE
+		stops.stop_id = correction_errant_stop_codes.stop_id
+		AND correction_errant_stop_codes.source = 'nwtb-2025-04'
+		AND stops.stop_code = correction_errant_stop_codes.stop_code_current;
 
 -- join trip ID and stop code from relevant tables
 ALTER TABLE stop_times ADD COLUMN source VARCHAR;

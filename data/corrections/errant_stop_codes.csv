@@ -6,3 +6,5 @@ nwtb,RR704,4643,4640,aligns with stop with same name elsewhere in dataset; EARL 
 nwtb,WK382,6636,6632,aligns with stop with same name elsewhere in dataset; SOMERSET seems correct
 nwtb,WM560,9056,9057,aligns with stop with same name elsewhere in dataset
 nwtb,WR163,5903,ERR1,unclear what the stop code should be; seems new but don't want to assign to a nearby one and lose the visibility
+nwtb-2025-04,747,8810,3053,exceptionally to align with _new combined stop code_ for Elmvale (confirmed via GPS coords)
+nwtb-2025-04,748,8813,3053,exceptionally to align with _new combined stop code_ for Elmvale (confirmed via GPS coords)
