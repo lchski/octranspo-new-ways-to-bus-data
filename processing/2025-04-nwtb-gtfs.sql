@@ -204,7 +204,7 @@ DELETE FROM stop_times
 -- NORMALIZING
 
 --- normalize stops to draw from stop_code, not stop_id
----- TODO: this may be more htan's needed now that we have just one set of stops
+---- TODO: this may be more than's needed now that we have just one set of stops
 CREATE TEMPORARY TABLE stop_ids_normalized AS (
 	SELECT stop_code, stop_id as stop_id_normalized FROM (
 		WITH stop_counts AS (
