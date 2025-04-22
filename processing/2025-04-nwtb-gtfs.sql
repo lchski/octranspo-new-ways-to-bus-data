@@ -143,21 +143,16 @@ UPDATE stop_times
 	END;
 
 -- join in the corrected stop_code for stops with null stop_code
-CREATE TEMPORARY TABLE correction_null_stop_codes AS
-	FROM read_csv('data/corrections/null_stop_codes.csv');
-
 UPDATE stops
 	SET
 		stop_code = correction_null_stop_codes.stop_code
-	FROM correction_null_stop_codes
+	FROM read_csv('data/corrections/null_stop_codes.csv') correction_null_stop_codes
 	WHERE
 		stops.stop_id = correction_null_stop_codes.stop_id
 		AND correction_null_stop_codes.source = 'nwtb-2025-04'
 		AND stops.stop_code IS NULL;
 
 ---- QC: check it worked with: `from stops where stop_code is null;`
-
-DROP TABLE correction_null_stop_codes;
 
 
 -- correct errant stop_code
