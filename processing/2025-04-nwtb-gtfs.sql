@@ -285,3 +285,32 @@ CREATE TABLE stops_normalized AS (
 
 DROP TABLE stops_normalized_tmp_distinct;
 
+
+
+
+
+-- CLEANING
+
+--- TODO: any cleaning to do?
+
+COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
+
+CREATE TEMP TABLE web_stop_times_by_stop AS (
+	SELECT
+		source, service_id, service_window, stop_code, count(*) as n_stop_times
+	FROM (SELECT DISTINCT(*) FROM stop_times)
+	GROUP BY ALL
+	ORDER BY source, service_id, service_window, stop_code
+);
+
+UPDATE web_stop_times_by_stop
+	SET source = 'current'
+	WHERE source = 'legacy';
+
+UPDATE web_stop_times_by_stop
+	SET source = 'new'
+	WHERE source = 'nwtb';
+
+COPY web_stop_times_by_stop TO 'data/out/for-web/stop_times_by_stop.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
+
+DROP TABLE web_stop_times_by_stop;
