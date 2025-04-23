@@ -293,6 +293,31 @@ DROP TABLE stops_normalized_tmp_distinct;
 
 --- TODO: any cleaning to do?
 
+
+
+
+
+-- ENHANCING
+
+--- add ward details to stops
+INSTALL spatial;
+LOAD spatial;
+
+ALTER TABLE stops_normalized ADD COLUMN ward_number VARCHAR;
+
+UPDATE stops_normalized
+	SET ward_number = wards.number
+	FROM (
+		SELECT OBJECTID AS id, NAME AS name, WARD AS number, geom -- only actually need the number and geom columns, including others if we want
+		FROM ST_Read('data/source/city-of-ottawa/wards_2022_to_2026.geojson')
+	) wards
+	WHERE ST_Within(ST_Point(stop_lon_normalized, stop_lat_normalized), wards.geom);
+
+
+
+
+-- OUTPUT
+
 COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
 CREATE TEMP TABLE web_stop_times_by_stop AS (
