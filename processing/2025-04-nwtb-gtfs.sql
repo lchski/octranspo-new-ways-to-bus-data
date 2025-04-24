@@ -103,12 +103,15 @@ CREATE TEMPORARY TABLE trips_raw as
 	FROM read_csv("data/source/octranspo-modern-gtfs/2025-04-18-GTFSExport/trips.txt");
 
 ---- create our reference table of trips
------ note the manual addition of eight route IDs (four, really)—these are the shopper routes (https://www.octranspo.com/en/our-services/bus-o-train-network/service-types/shopper-routes/)
+----- note the manual addition of several trip IDs—these are for the shopper routes (https://www.octranspo.com/en/our-services/bus-o-train-network/service-types/shopper-routes/)
 ----- we add them manually to make sure rural stops are accurately reflected
 ----- we find the shopper routes with these queries to find unused stop IDs, making sure nothing else is getting caught up or missed:
 -- COPY (SELECT stop_id FROM stops ANTI JOIN stop_times USING (stop_id)) TO 'data/out/tmp-unused-stop-ids.csv';
 -- COPY (SELECT DISTINCT(trip_id) FROM stop_times_unused WHERE stop_id IN (FROM read_csv('data/out/tmp-unused-stop-ids.csv', types={'stop_id': 'VARCHAR'}))) TO 'data/out/tmp-dropped-trips-from-unused-stops.csv';
 -- SELECT DISTINCT(route_id) FROM trips_raw WHERE trip_id IN (FROM read_csv('data/out/tmp-dropped-trips-from-unused-stops.csv')) ORDER BY route_id;
+-- SELECT route_id, arrival_time, first_value(trip_id) FROM (SELECT t.route_id, t.trip_headsign, st.* FROM stop_times st LEFT JOIN trips_raw t USING (trip_id) WHERE trip_id IN (FROM read_csv('data/out/tmp-dropped-trips-from-unused-stops.csv')) AND stop_sequence = 1 ORDER BY route_id, arrival_time, trip_id) GROUP BY route_id, arrival_time;
+-- COPY (SELECT route_id, arrival_time, first(trip_id) as representative_trip_id FROM (SELECT t.route_id, t.trip_headsign, st.* FROM stop_times st LEFT JOIN trips_raw t USING (trip_id) WHERE trip_id IN (FROM read_csv('data/out/tmp-dropped-trips-from-unused-stops.csv')) AND stop_sequence = 1 ORDER BY route_id, arrival_time, trip_id) GROUP BY route_id, arrival_time ORDER BY route_id, arrival_time) TO 'data/corrections/missing_shopper_trips.csv';
+
 CREATE TABLE trips AS
 	(
 		SELECT 
@@ -124,7 +127,8 @@ CREATE TABLE trips AS
 		ON t.service_id = sioi.service_id
 		WHERE
 			source IS NOT NULL OR
-			route_id IN ('301', '301-1', '302', '302-1', '303', '303-1', '304', '304-1')
+			route_id IN ('301', '301-1', '302', '302-1', '303', '303-1', '304', '304-1') AND
+			trip_id IN (SELECT representative_trip_id FROM read_csv('data/corrections/missing_shopper_trips.csv'))
 	);
 
 UPDATE trips
@@ -136,7 +140,8 @@ UPDATE trips
 		END
 	WHERE
 		source IS NULL AND
-		route_id IN ('301', '301-1', '302', '302-1', '303', '303-1', '304', '304-1');
+		route_id IN ('301', '301-1', '302', '302-1', '303', '303-1', '304', '304-1') AND
+		trip_id IN (SELECT representative_trip_id FROM read_csv('data/corrections/missing_shopper_trips.csv'));
 
 
 ---
