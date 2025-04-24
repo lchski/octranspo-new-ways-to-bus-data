@@ -339,3 +339,21 @@ UPDATE web_stop_times_by_stop
 COPY web_stop_times_by_stop TO 'data/out/for-web/stop_times_by_stop.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
 DROP TABLE web_stop_times_by_stop;
+
+CREATE TEMP TABLE web_stop_times AS (
+	SELECT
+		source, service_id, service_window, stop_times.stop_code, stops_normalized.stop_lat_normalized, stops_normalized.stop_lon_normalized
+	FROM stop_times
+	LEFT JOIN stops_normalized ON stop_times.stop_code = stops_normalized.stop_code
+	ORDER BY stop_lat_normalized, stop_lon_normalized
+);
+
+UPDATE web_stop_times
+	SET source = 'current'
+	WHERE source = 'legacy';
+
+UPDATE web_stop_times
+	SET source = 'new'
+	WHERE source = 'nwtb';
+
+COPY web_stop_times TO 'data/out/for-web/stop_times.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
