@@ -102,6 +102,13 @@ CREATE TEMPORARY TABLE trips_raw as
 	SELECT route_id, service_id, trip_id, trip_headsign, direction_id -- trip_headsign probably not useful? but maybe if we're trying to join / infer directions later
 	FROM read_csv("data/source/octranspo-modern-gtfs/2025-04-18-GTFSExport/trips.txt");
 
+---- create our reference table of trips
+----- note the manual addition of eight route IDs (four, really)—these are the shopper routes (https://www.octranspo.com/en/our-services/bus-o-train-network/service-types/shopper-routes/)
+----- we add them manually to make sure rural stops are accurately reflected
+----- we find the shopper routes with these queries to find unused stop IDs, making sure nothing else is getting caught up or missed:
+-- COPY (SELECT stop_id FROM stops ANTI JOIN stop_times USING (stop_id)) TO 'data/out/tmp-unused-stop-ids.csv';
+-- COPY (SELECT DISTINCT(trip_id) FROM stop_times_unused WHERE stop_id IN (FROM read_csv('data/out/tmp-unused-stop-ids.csv', types={'stop_id': 'VARCHAR'}))) TO 'data/out/tmp-dropped-trips-from-unused-stops.csv';
+-- SELECT DISTINCT(route_id) FROM trips_raw WHERE trip_id IN (FROM read_csv('data/out/tmp-dropped-trips-from-unused-stops.csv')) ORDER BY route_id;
 CREATE TABLE trips AS
 	(
 		SELECT 
@@ -115,8 +122,21 @@ CREATE TABLE trips AS
 		FROM trips_raw t
 		LEFT JOIN service_ids_oi sioi
 		ON t.service_id = sioi.service_id
-		WHERE source IS NOT NULL
+		WHERE
+			source IS NOT NULL OR
+			route_id IN ('301', '301-1', '302', '302-1', '303', '303-1', '304', '304-1')
 	);
+
+UPDATE trips
+	SET
+		service_id = 'weekday',
+		source = CASE
+			WHEN contains(service_id_original, '-1') THEN 'nwtb'
+			ELSE 'legacy'
+		END
+	WHERE
+		source IS NULL AND
+		route_id IN ('301', '301-1', '302', '302-1', '303', '303-1', '304', '304-1');
 
 
 ---
