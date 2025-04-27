@@ -366,9 +366,17 @@ COPY web_stop_times_by_stop TO 'data/out/for-web/stop_times_by_stop.parquet' (FO
 
 CREATE TEMP TABLE web_stop_times AS (
 	SELECT
-		source, service_id, service_window, stop_times.stop_code, stops_normalized.stop_lat_normalized, stops_normalized.stop_lon_normalized
+		source, service_id, service_window, t.route_id, t.trip_headsign, stop_times.stop_code, stops_normalized.stop_lat_normalized, stops_normalized.stop_lon_normalized, stops_normalized.ward_number
 	FROM stop_times
 	LEFT JOIN stops_normalized ON stop_times.stop_code = stops_normalized.stop_code
+	LEFT JOIN
+		(
+			SELECT
+				trip_id,
+				regexp_replace(route_id, '-1$', '') AS route_id,
+				trip_headsign
+			FROM trips
+		) t ON stop_times.trip_id = t.trip_id
 	ORDER BY stop_lat_normalized, stop_lon_normalized
 );
 
