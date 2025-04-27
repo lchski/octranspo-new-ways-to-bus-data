@@ -347,8 +347,9 @@ COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'pa
 
 CREATE TEMP TABLE web_stop_times_by_stop AS (
 	SELECT
-		source, service_id, service_window, stop_code, count(*) as n_stop_times
-	FROM (SELECT DISTINCT(*) FROM stop_times)
+		st.source, st.service_id, st.service_window, st.stop_code, s.ward_number, count(st.*) as n_stop_times
+	FROM (SELECT DISTINCT(*) FROM stop_times) st
+	LEFT JOIN stops_normalized s USING (stop_code)
 	GROUP BY ALL
 	ORDER BY source, service_id, service_window, stop_code
 );
@@ -362,8 +363,6 @@ UPDATE web_stop_times_by_stop
 	WHERE source = 'nwtb';
 
 COPY web_stop_times_by_stop TO 'data/out/for-web/stop_times_by_stop.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
-
-DROP TABLE web_stop_times_by_stop;
 
 CREATE TEMP TABLE web_stop_times AS (
 	SELECT
