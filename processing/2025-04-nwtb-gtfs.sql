@@ -388,11 +388,11 @@ CREATE TEMP TABLE web_stop_times AS (
 	SELECT
 		* EXCLUDE(arrival_time_s),
 		lead(arrival_time_s) OVER (
-			PARTITION BY stop_code, source, route_id, direction_id
+			PARTITION BY stop_code, source, service_id, route_id, direction_id
 			ORDER BY arrival_time_s
 		) - arrival_time_s AS s_until_next_arrival
 	FROM stop_times_with_arrivals
-	ORDER BY stop_lat_normalized, stop_lon_normalized, source, arrival_time_s
+	ORDER BY stop_lat_normalized, stop_lon_normalized, source, service_id, arrival_time_s
 );
 
 UPDATE web_stop_times
