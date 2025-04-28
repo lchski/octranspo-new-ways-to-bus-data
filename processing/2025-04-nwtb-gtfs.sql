@@ -365,20 +365,34 @@ UPDATE web_stop_times_by_stop
 COPY web_stop_times_by_stop TO 'data/out/for-web/stop_times_by_stop.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
 CREATE TEMP TABLE web_stop_times AS (
+	WITH stop_times_with_arrivals AS (
+		SELECT
+			source, service_id, service_window, t.route_id, t.direction_id, t.trip_headsign, stop_times.stop_code, stops_normalized.stop_lat_normalized, stops_normalized.stop_lon_normalized, stops_normalized.ward_number,
+			add(add(
+				arrival_time[0:2]::Integer * 60 * 60,
+				arrival_time[4:5]::Integer * 60),
+				arrival_time[7:8]::Integer
+			) AS arrival_time_s
+		FROM stop_times
+		LEFT JOIN stops_normalized ON stop_times.stop_code = stops_normalized.stop_code
+		LEFT JOIN
+			(
+				SELECT
+					trip_id,
+					regexp_replace(route_id, '-1$', '') AS route_id,
+					direction_id,
+					trip_headsign
+				FROM trips
+			) t ON stop_times.trip_id = t.trip_id
+	)
 	SELECT
-		source, service_id, service_window, t.route_id, t.direction_id, t.trip_headsign, stop_times.stop_code, stops_normalized.stop_lat_normalized, stops_normalized.stop_lon_normalized, stops_normalized.ward_number
-	FROM stop_times
-	LEFT JOIN stops_normalized ON stop_times.stop_code = stops_normalized.stop_code
-	LEFT JOIN
-		(
-			SELECT
-				trip_id,
-				regexp_replace(route_id, '-1$', '') AS route_id,
-				direction_id,
-				trip_headsign
-			FROM trips
-		) t ON stop_times.trip_id = t.trip_id
-	ORDER BY stop_lat_normalized, stop_lon_normalized
+		* EXCLUDE(arrival_time_s),
+		lead(arrival_time_s) OVER (
+			PARTITION BY stop_code, source, route_id, direction_id
+			ORDER BY arrival_time_s
+		) - arrival_time_s AS s_until_next_arrival
+	FROM stop_times_with_arrivals
+	ORDER BY stop_lat_normalized, stop_lon_normalized, source, arrival_time_s
 );
 
 UPDATE web_stop_times
