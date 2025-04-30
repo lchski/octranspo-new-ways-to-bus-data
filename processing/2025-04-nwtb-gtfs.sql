@@ -404,3 +404,52 @@ UPDATE web_stop_times
 	WHERE source = 'nwtb';
 
 COPY web_stop_times TO 'data/out/for-web/stop_times.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
+
+CREATE TEMP TABLE web_routes AS (
+	WITH trip_counts AS (
+	SELECT
+		source,
+		regexp_replace(route_id, '-1$', '') AS route_id,
+		direction_id,
+		COUNT(*) AS total_trips
+	FROM trips
+	GROUP BY source, route_id, direction_id
+	),
+	cleaned_routes AS (
+	SELECT
+		source,
+		regexp_replace(route_id, '-1$', '') AS route_id,
+		direction_id,
+		trip_headsign,
+		COUNT(*) AS headsign_count
+	FROM trips
+	GROUP BY source, route_id, direction_id, trip_headsign
+	),
+	ranked_headsigns AS (
+	SELECT
+		source,
+		route_id,
+		direction_id,
+		trip_headsign,
+		headsign_count,
+		ROW_NUMBER() OVER (
+		PARTITION BY source, route_id, direction_id
+		ORDER BY headsign_count DESC
+		) AS rn
+	FROM cleaned_routes
+	)
+	SELECT
+		r.source,
+		r.route_id,
+		r.direction_id,
+		r.trip_headsign AS most_common_headsign,
+		t.total_trips
+	FROM ranked_headsigns r
+	JOIN trip_counts t ON 
+		r.source = t.source AND
+		r.route_id = t.route_id AND
+		r.direction_id = t.direction_id
+	WHERE r.rn = 1
+);
+
+COPY web_routes TO 'data/out/for-web/routes.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
