@@ -452,4 +452,12 @@ CREATE TEMP TABLE web_routes AS (
 	WHERE r.rn = 1
 );
 
+UPDATE web_routes
+	SET source = 'current'
+	WHERE source = 'legacy';
+
+UPDATE web_routes
+	SET source = 'new'
+	WHERE source = 'nwtb';
+
 COPY web_routes TO 'data/out/for-web/routes.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
