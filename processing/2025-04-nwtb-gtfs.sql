@@ -440,7 +440,7 @@ CREATE TEMP TABLE web_routes AS (
 	)
 	SELECT
 		r.source,
-		r.route_id,
+		regexp_replace(r.route_id, '-(?:350|354)$', '') AS route_id,
 		r.direction_id,
 		r.trip_headsign AS most_common_headsign,
 		t.total_trips
@@ -450,6 +450,7 @@ CREATE TEMP TABLE web_routes AS (
 		r.route_id = t.route_id AND
 		r.direction_id = t.direction_id
 	WHERE r.rn = 1
+	ORDER BY TRY_CAST(regexp_replace(r.route_id, '-(?:350|354)$', '') AS INTEGER), r.direction_id, r.source
 );
 
 UPDATE web_routes
