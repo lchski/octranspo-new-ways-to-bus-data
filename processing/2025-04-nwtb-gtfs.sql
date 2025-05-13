@@ -367,7 +367,7 @@ COPY web_stop_times_by_stop TO 'data/out/for-web/stop_times_by_stop.parquet' (FO
 CREATE TEMP TABLE web_stop_times AS (
 	WITH stop_times_with_arrivals AS (
 		SELECT
-			source, service_id, service_window, t.route_id, t.direction_id, t.trip_headsign, stop_times.stop_code, stops_normalized.stop_lat_normalized, stops_normalized.stop_lon_normalized, stops_normalized.ward_number,
+			source, service_id, service_window, regexp_replace(t.route_id, '-(?:350|354)$', '') AS route_id, t.direction_id, t.trip_headsign, stop_times.stop_code, stops_normalized.stop_lat_normalized, stops_normalized.stop_lon_normalized, stops_normalized.ward_number,
 			add(add(
 				arrival_time[0:2]::Integer * 60 * 60,
 				arrival_time[4:5]::Integer * 60),
