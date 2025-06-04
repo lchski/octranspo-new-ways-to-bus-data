@@ -1,6 +1,6 @@
 # Data processing for [_NWTB Explorer_](https://nwtb-explorer.labs.lucascherkewski.com/)
 
-This repository converts data in OC Transpo’s GTFS export into a format more conducive to analysis, and outputs it for use in the NWTB Explorer.
+This repository converts data in [OC Transpo’s GTFS file](https://www.octranspo.com/en/plan-your-trip/travel-tools/developers/) into a format more conducive to analysis, and outputs it for use in the NWTB Explorer.
 
 It uses an export of the GTFS file from 2025-04-18 that included both the previous (“current”) and NWTB (“new”) schedules. (If you’d like to run the repository yourself, contact me for a copy of the GTFS export!)
 
