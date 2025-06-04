@@ -1,7 +1,5 @@
 # Data processing for [_NWTB Explorer_](https://nwtb-explorer.labs.lucascherkewski.com/)
 
-## Loading
-
 This repository:
 
 `load.sql` does the following:
