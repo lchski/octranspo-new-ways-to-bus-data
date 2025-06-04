@@ -1,4 +1,5 @@
--- First, run `load.sql`
+-- First, ensure your database is set up using `load.sql`
+-- Then, to run the commands in this file, you can use: `.read output-for-web.sql`
 
 COPY stops_normalized TO 'data/out/for-web/stops_normalized.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
 
