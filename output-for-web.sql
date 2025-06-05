@@ -120,3 +120,9 @@ UPDATE web_routes
 	WHERE source = 'nwtb';
 
 COPY web_routes TO 'data/out/for-web/routes.parquet' (FORMAT 'parquet', COMPRESSION 'GZIP');
+
+--- To convert these files to CSV:
+-- COPY (FROM read_parquet('data/out/for-web/stops_normalized.parquet')) TO 'data/out/for-web/stops_normalized.csv';
+-- COPY (FROM read_parquet('data/out/for-web/stop_times_by_stop.parquet')) TO 'data/out/for-web/stop_times_by_stop.csv';
+-- COPY (FROM read_parquet('data/out/for-web/stop_times.parquet')) TO 'data/out/for-web/stop_times.csv';
+-- COPY (FROM read_parquet('data/out/for-web/routes.parquet')) TO 'data/out/for-web/routes.csv';
