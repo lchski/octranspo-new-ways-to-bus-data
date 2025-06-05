@@ -10,7 +10,7 @@ It uses an export of the GTFS file from 2025-04-18 that included both the previo
 
 1. loads OC Transpo’s GTFS data into a SQL database
 2. filters the data to focus on six representative days (three for each schedule, see below), adding a `source` field to capture the schedule variant (“legacy” for the previous schedule, and “nwtb” for the NWTB schedule)
-3. adds or modifies additional fields, including `service_id` (service day) and `service_window` (based on OC Transpo’s [levels of service for the O-Train](https://www.octranspo.com/en/our-services/bus-o-train-network/service-types/o-train-line-1#hoursOp))
+3. adds or modifies additional fields, including `service_id` (service day) and `service_window` (based on OC Transpo’s [levels of service for the O-Train](https://www.octranspo.com/en/our-services/o-train-network/line-1#frequency-1))
 4. normalizes stop references to use the `stop_code` as the single common identifier instead of the `stop_id` (this reduces multi-platform stops, like Tunney’s Pasture and others on the Transitway, to a single stop entry, for ease of reference)
 5. enhances the data with spatial details (currently just the ward number of each stop)
 

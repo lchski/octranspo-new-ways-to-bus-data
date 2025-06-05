@@ -156,7 +156,7 @@ UPDATE stop_times
 		arrival_time[4:5]::Integer / 60
 	  ), 2);
 
--- service window times from: https://www.octranspo.com/en/our-services/bus-o-train-network/service-types/o-train-line-1#hoursOp
+-- service window times from: https://www.octranspo.com/en/our-services/o-train-network/line-1#frequency-1
 UPDATE stop_times
 	SET service_window = CASE
 	  WHEN arrival_time_frac >= 5 AND arrival_time_frac < 6.5 THEN 'off_peak_morning'
